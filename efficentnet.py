@@ -20,9 +20,9 @@ if (__name__ == '__main__'):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # Hyper parameters
-    num_epochs = 5
+    num_epochs = 1
     num_classes = 2
-    batch_size = 100
+    batch_size = 20
     learning_rate = 0.001
 
     #Data transformations
@@ -83,6 +83,56 @@ if (__name__ == '__main__'):
             out = out.reshape(out.size(0), -1)
             out = self.fc(out)
             return out"""
+    class Swish(nn.Module):
+        def __init__(self):
+            super(Swish, self).__init__()
+            self.sigmoid = nn.Sigmoid()
+
+        def forward(self, y):
+            return y * self.sigmoid(y)
+
+    def conv1x1(inputCh, outputCh):
+    	return nn.Sequential(
+        nn.Conv2d(inputCh, outputCh, 1,1,0, bias=False),
+        nn.BatchNorm2d(outputCh),
+        Swish()
+        )
+
+    class MBConv(nn.Module):
+        def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
+            super(MBConv, self).__init__()
+            self.plc = ((stride == 1) and (inputCh == outputCh))
+            expandedCh = inputCh * expandRatio
+            MBconv = []
+
+            if (expandRatio != 1):
+                expansionPhase = nn.Sequential(
+                    nn.Conv2d(inputCh, expandedCh, kernel_size=1, bias=False), nn.BatchNorm2d(expandedCh),
+                    Swish()
+                )
+                MBconv.append(expansionPhase)
+
+            DepthwisePhase = nn.Sequential(
+                nn.Conv2d(expandedCh, expandedCh, filterSize, stride, filterSize // 2, groups=expandedCh, bias=False),
+                nn.BatchNorm2d(expandedCh), Swish()
+            )
+            MBconv.append(DepthwisePhase)
+
+            # insert SqueezeAndExcite here later
+
+            projectionPhase = nn.Sequential(
+                nn.Conv2d(expandedCh, outputCh, kernel_size=1, bias=False), nn.BatchNorm2d(outputCh)
+            )
+            MBconv.append(projectionPhase)
+
+            self.MBConvLayers = nn.Sequential(*MBconv)
+
+
+        def forward(self, x):
+            if self.plc:
+                return  ######## Dropout stuff
+            else:
+                return self.MBConvLayers(x)
 
     class ConvNet(nn.Module):
         def __init__(self, num_classes=2):
@@ -90,13 +140,19 @@ if (__name__ == '__main__'):
             self.layer1 = nn.Sequential(
                 nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
                 nn.BatchNorm2d(32),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=2, stride=2))
+                Swish())
+            self.mbconv1= MBConv(32,16,3,1,1,0.25,1)
 
-            self.fc = nn.Linear(112*112*32, num_classes)
+            self.conv1x1 = conv1x1(16,128)
+            self.pool= nn.MaxPool2d(kernel_size=2, stride=2)
+            self.fc = nn.Linear(112*112*128, num_classes)
 
         def forward(self, x):
             out = self.layer1(x)
+            out = self.mbconv1(out)
+            out = self.conv1x1(out)
+
+            out = self.pool(out)
             out = out.reshape(out.size(0), -1)
             out = self.fc(out)
             return out
