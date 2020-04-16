@@ -1,52 +1,146 @@
-import os
+from __future__ import print_function, division
 import torch
-import torchvision
-import numpy as np
 import torch.nn as nn
+import torchvision
+import torchvision.transforms as transforms
 import torch.optim as optim
+from torch.optim import lr_scheduler
+import numpy as np
+from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
-from torch.utils.data import DataLoader
-from torchvision import transforms, datasets
+import time
+import os
+import copy
+import pandas as pd
+from PIL import Image
 
 
-################ Data transformation section ###################################################################################
-image_augmentations = {
-    'train': transforms.Compose([
-        transforms.RandomResizedCrop(size=256, scale=(0.75, 1.0)),
-        transforms.RandomRotation(degrees=25),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(),
-        transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),#Remove if not useful
-        transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
-        transforms.ToTensor(),
-        #       transforms.RandomErasing(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-    ]),
+if (__name__ == '__main__'):
+    # Device configuration
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    'valid': transforms.Compose([
+    # Hyper parameters
+    num_epochs = 5
+    num_classes = 2
+    batch_size = 100
+    learning_rate = 0.001
+
+    #Data transformations
+    data_transforms = {
+      'train':transforms.Compose([
+          transforms.RandomResizedCrop(size=256, scale=(0.75, 1.0)),
+          transforms.RandomRotation(degrees=25),
+         transforms.RandomHorizontalFlip(),
+         transforms.ColorJitter(),
+
+
+           transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),#Remove if not useful
+            transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
+          transforms.ToTensor(),
+          transforms.RandomErasing(),
+          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+
+          ]),
+
+    'val':    transforms.Compose([
         transforms.Resize(size=256),
         transforms.CenterCrop(size=224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-}
-###########################################################################################################################
-        
-############################ Dataset loading section ######################################################################
-dataDirectory = "gunData"  # will change dir later
+       ]),
+    }
 
-#defines training and validation sets
-gunDataset = {i: datasets.ImageFolder(os.path.join(dataDirectory, i), image_augmentations[i]) for i in ['train', 'valid']}
 
-#loads defined training and validation sets
-dataLoaders = {i: DataLoader(gunDataset[i], batch_size=4, shuffle=True) for i in ['train', 'valid']}
+    data_dir = 'data/'
+    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+                                          data_transforms[x])
+                      for x in ['train', 'val']}
+    test_loader  = torch.utils.data.DataLoader(image_datasets['val'], batch_size=4,
+                                                 shuffle=True, num_workers=4)
 
-#gets class names
-classNames = gunDataset['train'].classes
 
-#gets size of training set and validation set
-datasetSize = {i: len(gunDataset[i]) for i in ['train', 'valid']}
+    train_loader =  torch.utils.data.DataLoader(image_datasets['train'], batch_size=4,
+                                                 shuffle=True, num_workers=4)
 
-#chooses whether to use GPU or CPU depending on availability
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-###########################################################################################################################
+
+    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+    class_names = image_datasets['train'].classes
+    # Convolutional neural network (two convolutional layers)
+
+    """class ConvNet(nn.Module):
+        def __init__(self, num_classes=2):
+            super(ConvNet, self).__init__()
+            self.layer1 = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1,  bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU())
+
+
+            self.fc = nn.Linear(32, num_classes)
+
+        def forward(self, x):
+            out = self.layer1(x)
+            out = out.reshape(out.size(0), -1)
+            out = self.fc(out)
+            return out"""
+
+    class ConvNet(nn.Module):
+        def __init__(self, num_classes=2):
+            super(ConvNet, self).__init__()
+            self.layer1 = nn.Sequential(
+                nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
+                nn.BatchNorm2d(32),
+                nn.ReLU(),
+                nn.MaxPool2d(kernel_size=2, stride=2))
+
+            self.fc = nn.Linear(112*112*32, num_classes)
+
+        def forward(self, x):
+            out = self.layer1(x)
+            out = out.reshape(out.size(0), -1)
+            out = self.fc(out)
+            return out
+    model = ConvNet(num_classes).to(device)
+
+    # Loss and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+    # Train the model
+    total_step = len(train_loader)
+    for epoch in range(num_epochs):
+        for i, (images, labels) in enumerate(train_loader):
+            images = images.to(device)
+            labels = labels.to(device)
+
+            # Forward pass
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if (i+1) % 100 == 0:
+                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
+                       .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+
+    # Test the model
+    print(model)
+    model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+
+    # Save the model checkpoint
+    torch.save(model.state_dict(), 'model.ckpt')
