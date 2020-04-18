@@ -33,3 +33,27 @@ class MBConv(nn.Module):
                 return  ######## Dropout stuff
             else:
                 return self.MBConvLayers(x)
+        
+        
+        
+ ################################# Squeeze and Excite ##################################################################       
+class SqueezeAndExcitation(nn.Module):
+    def __init__(self, inputCh, squeezeCh, SERatio):
+        super(SqueezeAndExcitation, self).__init__()
+
+        squeezeChannels = int(squeezeCh * SERatio)
+
+        # May have to use AdaptiveAvgPool3d instead, but
+        # we need to try this out first in case
+        self.GAPooling = nn.AdaptiveAvgPool2d((1, 1))
+        self.Linear1(inputCh, squeezeChannels)
+        self.nonLinearAct1 = nn.ReLU()  # may change to Swish
+        self.Linear2(squeezeChannels, inputCh)
+        self.nonLinearAct2 = nn.Sigmoid()
+
+    def forward(self, x):
+        y = self.GAPooling(x)
+        y = self.nonLinearAct1(self.Linear1(y))
+        y = self.nonLinearAct2(self.Linear2(y))
+        y = x * y
+        return y
