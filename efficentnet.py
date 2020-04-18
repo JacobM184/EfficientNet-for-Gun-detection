@@ -97,6 +97,16 @@ if (__name__ == '__main__'):
         nn.BatchNorm2d(outputCh),
         Swish()
         )
+    class DropOutLayer(nn.Module):
+        def __init__(self, DropPRate):
+            super(DropOutLayer, self).__init__()
+
+            self.DropoutLayer = nn.Dropout2d(p=DropPRate, inplace=True)
+
+        def forward(self, x):
+            y = self.DropoutLayer(x)
+            return y
+
 
     class MBConv(nn.Module):
         def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
@@ -104,7 +114,7 @@ if (__name__ == '__main__'):
             self.plc = ((stride == 1) and (inputCh == outputCh))
             expandedCh = inputCh * expandRatio
             MBconv = []
-
+            self.use_res = (stride == 1 and (inputCh == outputCh))
             if (expandRatio != 1):
                 expansionPhase = nn.Sequential(
                     nn.Conv2d(inputCh, expandedCh, kernel_size=1, bias=False), nn.BatchNorm2d(expandedCh),
@@ -117,8 +127,13 @@ if (__name__ == '__main__'):
                 nn.BatchNorm2d(expandedCh), Swish()
             )
             MBconv.append(DepthwisePhase)
-
+            hidden_dim = inputCh * expandRatio
+            reduced_dim = max(1, int(inputCh / SERatio))
             # insert SqueezeAndExcite here later
+            if (SERatio != 0.0):
+                SqAndEx = SqueezeAndExcitation(    expandedCh, inputCh, SERatio)
+                MBconv.append(SqAndEx)
+
 
             projectionPhase = nn.Sequential(
                 nn.Conv2d(expandedCh, outputCh, kernel_size=1, bias=False), nn.BatchNorm2d(outputCh)
@@ -129,14 +144,35 @@ if (__name__ == '__main__'):
 
 
         def forward(self, x):
-            if self.plc:
-                return  ######## Dropout stuff
+            if self.use_res:
+                return ( x + self.DropOutLayer(self.MBConvLayers(x)) )
             else:
                 return self.MBConvLayers(x)
+    ################################# Squeeze and Excite ##################################################################
+    ########### Squeeze and Excitation block ###################
+
+    class SqueezeAndExcitation(nn.Module):
+        def __init__(self, inputCh, squeezeCh, SERatio):
+            super(SqueezeAndExcitation, self).__init__()
+
+            squeezeChannels = int(squeezeCh * SERatio)
+
+            # May have to use AdaptiveAvgPool3d instead, but
+            # we need to try this out first in case
+            self.GAPooling = nn.AdaptiveAvgPool2d(1)
+            self.dense = nn.Sequential(nn.Conv2d(inputCh, squeezeChannels, 1), nn.ReLU(),
+                                       nn.Conv2d(squeezeChannels, inputCh, 1), nn.Sigmoid())
+
+        def forward(self, x):
+            y = self.GAPooling(x)
+            y = self.dense(y)
+            return x * y
+
 
     class ConvNet(nn.Module):
         def __init__(self, num_classes=2):
             super(ConvNet, self).__init__()
+
             self.layer1 = nn.Sequential(
                 nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
                 nn.BatchNorm2d(32),
