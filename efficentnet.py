@@ -52,104 +52,117 @@ if (__name__ == '__main__'):
 
 
     data_dir = 'data/'
+    # get training and validation data from dataset in data_dir
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                       for x in ['train', 'val']}
+    # define testing/validation data
     test_loader  = torch.utils.data.DataLoader(image_datasets['val'], batch_size=4,
                                                  shuffle=True, num_workers=4)
 
-
+    # define training data
     train_loader =  torch.utils.data.DataLoader(image_datasets['train'], batch_size=4,
                                                  shuffle=True, num_workers=4)
 
-
+    # store size values for training and testing sets
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+    # get the classes in training set
     class_names = image_datasets['train'].classes
-    # Convolutional neural network (two convolutional layers)
-
-    """class ConvNet(nn.Module):
-        def __init__(self, num_classes=2):
-            super(ConvNet, self).__init__()
-            self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1,  bias=False),
-            nn.BatchNorm2d(32),
-            nn.ReLU())
-
-
-            self.fc = nn.Linear(32, num_classes)
-
-        def forward(self, x):
-            out = self.layer1(x)
-            out = out.reshape(out.size(0), -1)
-            out = self.fc(out)
-            return out"""
+    
+    # Swish activation function implementation
     class Swish(nn.Module):
         def __init__(self):
             super(Swish, self).__init__()
             self.sigmoid = nn.Sigmoid()
 
         def forward(self, y):
+            # swish is basically equal to the sigmoid of x multiplied by x
             return y * self.sigmoid(y)
-
+    
+    # function for a 2D convolutional layer with a 1x1 kernel
     def conv1x1(inputCh, outputCh):
+        # convolutional layer with batch normalisation and swish activation
     	return nn.Sequential(
         nn.Conv2d(inputCh, outputCh, 1,1,0, bias=False),
         nn.BatchNorm2d(outputCh),
         Swish()
         )
+    
+    # class for defining dropout layers
     class DropOutLayer(nn.Module):
         def __init__(self, DropPRate):
             super(DropOutLayer, self).__init__()
-
+            
+            # using pytorch's inbuilt Dropout2d layer with in-place operation
             self.DropoutLayer = nn.Dropout2d(p=DropPRate, inplace=True)
 
         def forward(self, x):
             y = self.DropoutLayer(x)
             return y
 
-
+    # class for MBConv layer
     class MBConv(nn.Module):
         def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
             super(MBConv, self).__init__()
-            self.plc = ((stride == 1) and (inputCh == outputCh))
+            
+            # calculate channels after expansion
             expandedCh = inputCh * expandRatio
+            
+            # array to hold 'sub layers' of MBConv layer
             MBconv = []
+            
+            # placeholder to check if dropout layers should be used
             self.use_res = (stride == 1 and (inputCh == outputCh))
+            
+            # code for expansion phase of MBConv layer
+            # occurance depends on the expand ratio
             if (expandRatio != 1):
+                # expansion sequential block
                 expansionPhase = nn.Sequential(
                     nn.Conv2d(inputCh, expandedCh, kernel_size=1, bias=False), nn.BatchNorm2d(expandedCh),
                     Swish()
                 )
+                # appending expansion sequential block to the MBConv array
                 MBconv.append(expansionPhase)
-
+            
+            # depthwise convolution sequential block
             DepthwisePhase = nn.Sequential(
                 nn.Conv2d(expandedCh, expandedCh, filterSize, stride, filterSize // 2, groups=expandedCh, bias=False),
                 nn.BatchNorm2d(expandedCh), Swish()
             )
+            # appending depthwise convolution sequential block to the MBConv array
             MBconv.append(DepthwisePhase)
-            hidden_dim = inputCh * expandRatio
-            reduced_dim = max(1, int(inputCh / SERatio))
-            # insert SqueezeAndExcite here later
+            
+            # Squeeze and excitation sequential block of MBConv
             if (SERatio != 0.0):
-                SqAndEx = SqueezeAndExcitation(    expandedCh, inputCh, SERatio)
+                
+                # see SqueezeAndExcitation class for implementation
+                SqAndEx = SqueezeAndExcitation(expandedCh, inputCh, SERatio)
+                
+                # appending Squeeze and excitation sequential block to the MBConv array
                 MBconv.append(SqAndEx)
 
-
+            # projection sequential block of MBConv
+            # returns channel number from the expanded channels to the intended output channels
             projectionPhase = nn.Sequential(
                 nn.Conv2d(expandedCh, outputCh, kernel_size=1, bias=False), nn.BatchNorm2d(outputCh)
             )
+            
+            # appending projection sequential block to the MBConv array
             MBconv.append(projectionPhase)
-
+            
+            # combining all sequential blocks under one 'master' sequential block
             self.MBConvLayers = nn.Sequential(*MBconv)
 
-
+        # forward function for MBConv
         def forward(self, x):
+            
+            #logic to check if we need to use a dropout layer
             if self.use_res:
                 return ( x + self.DropOutLayer(self.MBConvLayers(x)) )
             else:
                 return self.MBConvLayers(x)
-    ################################# Squeeze and Excite ##################################################################
-    ########### Squeeze and Excitation block ###################
+
 
     class SqueezeAndExcitation(nn.Module):
         def __init__(self, inputCh, squeezeCh, SERatio):
