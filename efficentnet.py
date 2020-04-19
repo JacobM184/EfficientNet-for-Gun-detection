@@ -1,17 +1,17 @@
 from __future__ import print_function, division
 import os
-import copy
-import time
+import copy # unused
+import time # unused
 import torch
-import torchvision
-import numpy as np
-import pandas as pd
+import torchvision # unused
+import numpy as np # unused
+import pandas as pd # unused
 import torch.nn as nn
-from PIL import Image
+from PIL import Image # unused
 import torch.optim as optim
-import matplotlib.pyplot as plt
-from torch.optim import lr_scheduler
-import torchvision.transforms as transforms
+import matplotlib.pyplot as plt # unused
+from torch.optim import lr_scheduler # unused
+import torchvision.transforms as transforms # unused
 from torchvision import datasets, models, transforms
 
 
@@ -295,7 +295,7 @@ if (__name__ == '__main__'):
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     # dynamic optimizer for better trainig
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model
     total_step = len(train_loader)
