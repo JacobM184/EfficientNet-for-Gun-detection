@@ -1,18 +1,19 @@
 from __future__ import print_function, division
-import torch
-import torch.nn as nn
-import torchvision
-import torchvision.transforms as transforms
-import torch.optim as optim
-from torch.optim import lr_scheduler
-import numpy as np
-from torchvision import datasets, models, transforms
-import matplotlib.pyplot as plt
-import time
 import os
 import copy
+import time
+import torch
+import torchvision
+import numpy as np
 import pandas as pd
+import torch.nn as nn
 from PIL import Image
+import torch.optim as optim
+import matplotlib.pyplot as plt
+from torch.optim import lr_scheduler
+import torchvision.transforms as transforms
+from torchvision import datasets, models, transforms
+
 
 
 if (__name__ == '__main__'):
@@ -25,37 +26,55 @@ if (__name__ == '__main__'):
     batch_size = 20
     learning_rate = 0.001
 
-    #Data transformations
+################################################### Data transformations #########################################################
+
     data_transforms = {
-      'train':transforms.Compose([
+        
+      # transformations for training set  
+      'train': transforms.Compose([
+          # random resizing of image up to resolution of 256x256 pixels
+          # and scale between 0.75 and 1.0
           transforms.RandomResizedCrop(size=256, scale=(0.75, 1.0)),
+          # random rotation of image by +/-25 degrees
           transforms.RandomRotation(degrees=25),
-         transforms.RandomHorizontalFlip(),
-         transforms.ColorJitter(),
-
-
-           transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),#Remove if not useful
-            transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
+          # random flip transformation on horizontal axis
+          transforms.RandomHorizontalFlip(),
+          # randomly changes the brightness, contrast and saturation of an image.
+          transforms.ColorJitter(),
+          # randomly performs perspective transformation of the image randomly with a given probability.
+          transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3), ### Remove if not useful ###
+          # Efficentnet requires 244x244 RGB inputs, so we crop to the required size
+          transforms.CenterCrop(size=224), 
+          # converts image to tensor
           transforms.ToTensor(),
+          # randomly selects a rectangle region in an image and erases its pixels.
           transforms.RandomErasing(),
+          # normalizes a tensor image with mean and standard deviation.
           transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-
           ]),
-
-    'val':    transforms.Compose([
-        transforms.Resize(size=256),
-        transforms.CenterCrop(size=224),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-       ]),
+        
+      # transformations for validation set
+      'val': transforms.Compose([
+          # random resizing of image up to resolution of 256x256 pixels
+          transforms.Resize(size=256),
+          # Efficentnet requires 244x244 RGB inputs, so we crop to the required size
+          transforms.CenterCrop(size=224),
+          # converts image to tensor
+          transforms.ToTensor(),
+          # normalizes a tensor image with mean and standard deviation.
+          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+          ]),
     }
 
+
+################################################### Dataset loading #########################################################
 
     data_dir = 'data/'
     # get training and validation data from dataset in data_dir
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                       for x in ['train', 'val']}
+    
     # define testing/validation data
     test_loader  = torch.utils.data.DataLoader(image_datasets['val'], batch_size=4,
                                                  shuffle=True, num_workers=4)
@@ -66,10 +85,13 @@ if (__name__ == '__main__'):
 
     # store size values for training and testing sets
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+    
     # get the classes in training set
     class_names = image_datasets['train'].classes
     
-    # Swish activation function implementation
+
+################################################### Swish activation #########################################################
+
     class Swish(nn.Module):
         def __init__(self):
             super(Swish, self).__init__()
@@ -79,7 +101,9 @@ if (__name__ == '__main__'):
             # swish is basically equal to the sigmoid of x multiplied by x
             return y * self.sigmoid(y)
     
-    # function for a 2D convolutional layer with a 1x1 kernel
+
+#################################################### 1x1 Conv layer ###########################################################
+
     def conv1x1(inputCh, outputCh):
         # convolutional layer with batch normalisation and swish activation
     	return nn.Sequential(
@@ -88,7 +112,9 @@ if (__name__ == '__main__'):
         Swish()
         )
     
-    # class for defining dropout layers
+
+##################################################### Dropout layer ###########################################################
+
     class DropOutLayer(nn.Module):
         def __init__(self, DropPRate):
             super(DropOutLayer, self).__init__()
@@ -100,7 +126,33 @@ if (__name__ == '__main__'):
             y = self.DropoutLayer(x)
             return y
 
-    # class for MBConv layer
+################################################### Squeeze and Excitation ####################################################
+
+    class SqueezeAndExcitation(nn.Module):
+        def __init__(self, inputCh, squeezeCh, SERatio):
+            super(SqueezeAndExcitation, self).__init__()
+
+            squeezeChannels = int(squeezeCh * SERatio)
+
+            # Using AdaptiveAvgPool2d to perform global average pooling
+            # this layer will give an output of form: 1x1xInputChannels
+            self.GAPooling = nn.AdaptiveAvgPool2d(1)
+            
+            # sequential blobk adds non-linearity, reduces output channel complexity, 
+            # and gives each channel a smooth gating function. Output still of the form: 1x1xInputChannels
+            self.dense = nn.Sequential(nn.Conv2d(inputCh, squeezeChannels, 1), nn.ReLU(),
+                                       nn.Conv2d(squeezeChannels, inputCh, 1), nn.Sigmoid())
+
+        def forward(self, x):
+            y = self.GAPooling(x)
+            y = self.dense(y)
+            
+            # multiply the 1x1xInputChannels result of SqueezeAndExcitation with the original input
+            # to add more weighting to the feature maps
+            return x * y 
+
+###################################################### MBConv block ###########################################################
+
     class MBConv(nn.Module):
         def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
             super(MBConv, self).__init__()
@@ -159,29 +211,14 @@ if (__name__ == '__main__'):
             
             #logic to check if we need to use a dropout layer
             if self.use_res:
+                # see dropout layer class for implementation
                 return ( x + self.DropOutLayer(self.MBConvLayers(x)) )
             else:
                 return self.MBConvLayers(x)
 
-
-    class SqueezeAndExcitation(nn.Module):
-        def __init__(self, inputCh, squeezeCh, SERatio):
-            super(SqueezeAndExcitation, self).__init__()
-
-            squeezeChannels = int(squeezeCh * SERatio)
-
-            # May have to use AdaptiveAvgPool3d instead, but
-            # we need to try this out first in case
-            self.GAPooling = nn.AdaptiveAvgPool2d(1)
-            self.dense = nn.Sequential(nn.Conv2d(inputCh, squeezeChannels, 1), nn.ReLU(),
-                                       nn.Conv2d(squeezeChannels, inputCh, 1), nn.Sigmoid())
-
-        def forward(self, x):
-            y = self.GAPooling(x)
-            y = self.dense(y)
-            return x * y
-
-
+############################################## Implementation for training & testing ###########################################
+   
+    # ConvNet class to hold all layers of the efficient net
     class ConvNet(nn.Module):
         def __init__(self, num_classes=2):
             super(ConvNet, self).__init__()
@@ -257,6 +294,7 @@ if (__name__ == '__main__'):
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
+    # dynamic optimizer for better trainig
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model
