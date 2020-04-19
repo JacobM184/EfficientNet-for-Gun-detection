@@ -190,27 +190,7 @@ if (__name__ == '__main__'):
                 nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
                 nn.BatchNorm2d(32),
                 Swish())
-            self.mbconv1= MBConv(32,16,3,1,1,0.25,1)
-
-            self.conv1x1 = conv1x1(16,128)
-            self.pool= nn.MaxPool2d(kernel_size=2, stride=2)
-            self.fc = nn.Linear(112*112*128, num_classes)
-
-        def forward(self, x):
-            out = self.layer1(x)
-            out = self.mbconv1(out)
-            out = self.conv1x1(out)
-
-            out = self.pool(out)
-            out = out.reshape(out.size(0), -1)
-            out = self.fc(out)class ConvNet(nn.Module):
-        def __init__(self, num_classes=2):
-            super(ConvNet, self).__init__()
-            #res=224x224
-            self.layer1 = nn.Sequential(
-                nn.Conv2d(1, 32, kernel_size=5, stride=2, padding=2),
-                nn.BatchNorm2d(32),
-                Swish())
+           
             #stride=1, output res=224x224
             self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25, 0.2)
             #stride=2, output res=112x112
@@ -273,8 +253,7 @@ if (__name__ == '__main__'):
             return out
     model = ConvNet(num_classes).to(device)
 
-            return out
-    model = ConvNet(num_classes).to(device)
+ 
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
