@@ -203,7 +203,76 @@ if (__name__ == '__main__'):
 
             out = self.pool(out)
             out = out.reshape(out.size(0), -1)
+            out = self.fc(out)class ConvNet(nn.Module):
+        def __init__(self, num_classes=2):
+            super(ConvNet, self).__init__()
+            #res=224x224
+            self.layer1 = nn.Sequential(
+                nn.Conv2d(1, 32, kernel_size=5, stride=2, padding=2),
+                nn.BatchNorm2d(32),
+                Swish())
+            #stride=1, output res=224x224
+            self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25, 0.2)
+            #stride=2, output res=112x112
+            self.mbconv2= MBConv(16,  24,  3, 2, 6, 0.25, 0.2)
+            self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, 0.25, 0.2)
+            #stride=2, output res=56x56
+            self.mbconv3= MBConv(24,  40,  5, 2, 6, 0.25, 0.2)
+            self.mbconv3repeat= MBConv(40,  40,  5, 1, 6, 0.25, 0.2)
+            #stride=2, output res=28x28
+            self.mbconv4= MBConv(40,  80,  3, 2, 6, 0.25, 0.2)
+            self.mbconv4repeat= MBConv(80,  80,  3, 1, 6, 0.25, 0.2)
+            #stride=1, output res=28x28
+            self.mbconv5= MBConv(80,  112, 5, 1, 6, 0.25, 0.2)
+            self.mbconv5repeat= MBConv(112,  112, 5, 1, 6, 0.25, 0.2)
+            #stride=2, output res=14x14
+            self.mbconv6= MBConv(112, 192, 5, 2, 6, 0.25, 0.2)
+            self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, 0.25, 0.2)
+            #stride=2, output res=7x7
+            self.mbconv7= MBConv(192, 320, 3, 1, 6, 0.25, 0.2)
+            #stride=1, output res=7x7
+            self.conv1x1 = conv1x1(320,1280)
+            #stride=1, output res=7x7
+            self.pool=  nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+            self.fc = nn.Linear(7*7*1280, num_classes)
+
+
+        def forward(self, x):
+            out = self.layer1(x)
+
+            out = self.mbconv1(out)
+
+            out = self.mbconv2(out)
+
+            out = self.mbconv2repeat(out)
+
+            out = self.mbconv3(out)
+            out = self.mbconv3repeat(out)
+
+            out = self.mbconv4(out)
+            out = self.mbconv4repeat(out)
+            out = self.mbconv4repeat(out)
+
+            out = self.mbconv5(out)
+            out = self.mbconv5repeat(out)
+            out = self.mbconv5repeat(out)
+
+            out = self.mbconv6(out)
+            out = self.mbconv6repeat(out)
+            out = self.mbconv6repeat(out)
+            out = self.mbconv6repeat(out)
+
+            out = self.mbconv7(out)
+
+            out = self.conv1x1(out)
+
+            #out = torch.mean(out, (2, 3))
+            out=self.pool(out)
+            out = out.reshape(out.size(0), -1)
             out = self.fc(out)
+            return out
+    model = ConvNet(num_classes).to(device)
+
             return out
     model = ConvNet(num_classes).to(device)
 
