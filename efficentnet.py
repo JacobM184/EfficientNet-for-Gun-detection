@@ -42,8 +42,8 @@ if (__name__ == '__main__'):
           # randomly changes the brightness, contrast and saturation of an image.
           transforms.ColorJitter(),
           # randomly performs perspective transformation of the image randomly with a given probability.
-          transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3), ### Remove if not useful ###
-          # Efficentnet requires 244x244 RGB inputs, so we crop to the required size
+          transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3), # Remove if not useful
+          # EfficentNet requires 244x244 RGB inputs, so we crop to the required size
           transforms.CenterCrop(size=224), 
           # converts image to tensor
           transforms.ToTensor(),
@@ -57,7 +57,7 @@ if (__name__ == '__main__'):
       'val': transforms.Compose([
           # random resizing of image up to resolution of 256x256 pixels
           transforms.Resize(size=256),
-          # Efficentnet requires 244x244 RGB inputs, so we crop to the required size
+          # EfficentNet requires 244x244 RGB inputs, so we crop to the required size
           transforms.CenterCrop(size=224),
           # converts image to tensor
           transforms.ToTensor(),
@@ -119,7 +119,7 @@ if (__name__ == '__main__'):
         def __init__(self, DropPRate):
             super(DropOutLayer, self).__init__()
             
-            # using pytorch's inbuilt Dropout2d layer with in-place operation
+            # using PyTorch's inbuilt Dropout2d layer with in-place operation
             self.DropoutLayer = nn.Dropout2d(p=DropPRate, inplace=True)
 
         def forward(self, x):
@@ -138,7 +138,7 @@ if (__name__ == '__main__'):
             # this layer will give an output of form: 1x1xInputChannels
             self.GAPooling = nn.AdaptiveAvgPool2d(1)
             
-            # sequential blobk adds non-linearity, reduces output channel complexity, 
+            # sequential block adds non-linearity, reduces output channel complexity, 
             # and gives each channel a smooth gating function. Output still of the form: 1x1xInputChannels
             self.dense = nn.Sequential(nn.Conv2d(inputCh, squeezeChannels, 1), nn.ReLU(),
                                        nn.Conv2d(squeezeChannels, inputCh, 1), nn.Sigmoid())
@@ -167,7 +167,7 @@ if (__name__ == '__main__'):
             self.use_res = (stride == 1 and (inputCh == outputCh))
             
             # code for expansion phase of MBConv layer
-            # occurance depends on the expand ratio
+            # occurrence depends on the expand ratio
             if (expandRatio != 1):
                 # expansion sequential block
                 expansionPhase = nn.Sequential(
@@ -222,34 +222,36 @@ if (__name__ == '__main__'):
     class ConvNet(nn.Module):
         def __init__(self, num_classes=2):
             super(ConvNet, self).__init__()
-
+            
+            # Conv3x3 layer
             self.layer1 = nn.Sequential(
-                nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
+                nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=2),
                 nn.BatchNorm2d(32),
                 Swish())
-           
-            #stride=1, output res=224x224
+            
+            # input params for MBConv: (inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate)
+            # stride=1, output res=224x224
             self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25, 0.2)
-            #stride=2, output res=112x112
+            # stride=2, output res=112x112
             self.mbconv2= MBConv(16,  24,  3, 2, 6, 0.25, 0.2)
             self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, 0.25, 0.2)
-            #stride=2, output res=56x56
+            # stride=2, output res=56x56
             self.mbconv3= MBConv(24,  40,  5, 2, 6, 0.25, 0.2)
             self.mbconv3repeat= MBConv(40,  40,  5, 1, 6, 0.25, 0.2)
-            #stride=2, output res=28x28
+            # stride=2, output res=28x28
             self.mbconv4= MBConv(40,  80,  3, 2, 6, 0.25, 0.2)
             self.mbconv4repeat= MBConv(80,  80,  3, 1, 6, 0.25, 0.2)
-            #stride=1, output res=28x28
+            # stride=1, output res=28x28
             self.mbconv5= MBConv(80,  112, 5, 1, 6, 0.25, 0.2)
             self.mbconv5repeat= MBConv(112,  112, 5, 1, 6, 0.25, 0.2)
-            #stride=2, output res=14x14
+            # stride=2, output res=14x14
             self.mbconv6= MBConv(112, 192, 5, 2, 6, 0.25, 0.2)
             self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, 0.25, 0.2)
-            #stride=2, output res=7x7
+            # stride=2, output res=7x7
             self.mbconv7= MBConv(192, 320, 3, 1, 6, 0.25, 0.2)
-            #stride=1, output res=7x7
+            # stride=1, output res=7x7
             self.conv1x1 = conv1x1(320,1280)
-            #stride=1, output res=7x7
+            # stride=1, output res=7x7
             self.pool=  nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
             self.fc = nn.Linear(7*7*1280, num_classes)
 
@@ -294,7 +296,7 @@ if (__name__ == '__main__'):
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    # dynamic optimizer for better trainig
+    # dynamic optimizer for better training
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model
