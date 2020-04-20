@@ -27,7 +27,7 @@ if (__name__ == '__main__'):
     learning_rate = 0.001
 
 ################################################### Data transformations #########################################################
-
+"""
     data_transforms = {
         
       # transformations for training set  
@@ -89,6 +89,31 @@ if (__name__ == '__main__'):
     # get the classes in training set
     class_names = image_datasets['train'].classes
     
+    
+    """
+    train_loader = torch.utils.data.DataLoader(
+      datasets.CIFAR10('../data', train=True, download=True,
+                      transform=transforms.Compose([
+          transforms.RandomResizedCrop(size=256, scale=(0.75, 1.0)),
+          transforms.RandomRotation(degrees=25),
+          transforms.RandomHorizontalFlip(),
+          transforms.ColorJitter(),
+          transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),#Remove if not useful
+          transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
+                          transforms.Resize(224, interpolation=2),
+                         transforms.ToTensor()
+                          
+                      ])),
+                     batch_size=batch, shuffle=True,  num_workers=4)
+  
+
+  test_loader = torch.utils.data.DataLoader(
+      datasets.CIFAR10('../data', train=False, transform=transforms.Compose([
+                          torchvision.transforms.Resize(224, interpolation=2),
+                          torchvision.transforms.ToTensor()
+                          
+                      ])),
+      batch_size=batch, shuffle=True,  num_workers=4)
 
 ################################################### Swish activation #########################################################
 
