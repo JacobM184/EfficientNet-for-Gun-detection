@@ -28,7 +28,7 @@ if (__name__ == '__main__'):
   batch=batch_size
   learning_rate = 0.001
 
-
+  
 
 
   train_loader = torch.utils.data.DataLoader(
@@ -42,16 +42,16 @@ if (__name__ == '__main__'):
           transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
                           transforms.Resize(224, interpolation=2),
                          transforms.ToTensor()
-
+                          
                       ])),
                      batch_size=batch, shuffle=True,  num_workers=4)
-
+  
 
   test_loader = torch.utils.data.DataLoader(
       datasets.CIFAR10('../data', train=False, transform=transforms.Compose([
                           torchvision.transforms.Resize(224, interpolation=2),
                           torchvision.transforms.ToTensor()
-
+                          
                       ])),
       batch_size=batch, shuffle=True,  num_workers=4)
   #data_dir = 'data/'
@@ -60,7 +60,7 @@ if (__name__ == '__main__'):
     #                for x in ['train', 'val']}
  # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
   #class_names = image_datasets['train'].classes
-
+  
   class Swish(nn.Module):
       def __init__(self):
           super(Swish, self).__init__()
@@ -226,9 +226,10 @@ if (__name__ == '__main__'):
 
   # Train the model
   total_step = len(train_loader)
-
+ 
   for epoch in range(num_epochs):
       for i, (images, labels) in enumerate(train_loader):
+          model.train()
           images = images.to(device)
           labels = labels.to(device)
 
@@ -257,10 +258,10 @@ if (__name__ == '__main__'):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))  
   # Test the model
-
-
+ 
+ 
 
   # Save the model checkpoint
   torch.save(model.state_dict(), 'model.ckpt')
