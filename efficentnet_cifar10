@@ -15,6 +15,7 @@ import pandas as pd
 from PIL import Image
 from torch.autograd import Variable
 import argparse
+import shutil
 if (__name__ == '__main__'):
   # Device configuration
   device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -28,7 +29,13 @@ if (__name__ == '__main__'):
   batch=batch_size
   learning_rate = 0.001
 
-  
+  SE=0.25
+
+
+
+  def save_ckp(state):
+    f_path = 'checkpoint.pt'
+    torch.save(state, f_path)
 
 
   train_loader = torch.utils.data.DataLoader(
@@ -42,16 +49,16 @@ if (__name__ == '__main__'):
           transforms.CenterCrop(size=224),#Efficentnet requires 244x244 rgb inputs
                           transforms.Resize(224, interpolation=2),
                          transforms.ToTensor()
-                          
+
                       ])),
                      batch_size=batch, shuffle=True,  num_workers=4)
-  
+
 
   test_loader = torch.utils.data.DataLoader(
       datasets.CIFAR10('../data', train=False, transform=transforms.Compose([
                           torchvision.transforms.Resize(224, interpolation=2),
                           torchvision.transforms.ToTensor()
-                          
+
                       ])),
       batch_size=batch, shuffle=True,  num_workers=4)
   #data_dir = 'data/'
@@ -60,7 +67,7 @@ if (__name__ == '__main__'):
     #                for x in ['train', 'val']}
  # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
   #class_names = image_datasets['train'].classes
-  
+
   class Swish(nn.Module):
       def __init__(self):
           super(Swish, self).__init__()
@@ -158,24 +165,24 @@ if (__name__ == '__main__'):
               nn.BatchNorm2d(32),
               Swish())
           #stride=1, output res=224x224
-          self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25, 0.2)
+          self.mbconv1= MBConv(32,  16,  3, 1, 1, SE, 0.2)
           #stride=2, output res=112x112
-          self.mbconv2= MBConv(16,  24,  3, 2, 6, 0.25, 0.2)
-          self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, 0.25, 0.2)
+          self.mbconv2= MBConv(16,  24,  3, 2, 6, SE, 0.2)
+          self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, SE, 0.2)
           #stride=2, output res=56x56
-          self.mbconv3= MBConv(24,  40,  5, 2, 6, 0.25, 0.2)
-          self.mbconv3repeat= MBConv(40,  40,  5, 1, 6, 0.25, 0.2)
+          self.mbconv3= MBConv(24,  40,  5, 2, 6, SE, 0.2)
+          self.mbconv3repeat= MBConv(40,  40,  5, 1, 6, SE, 0.2)
           #stride=2, output res=28x28
-          self.mbconv4= MBConv(40,  80,  3, 2, 6, 0.25, 0.2)
-          self.mbconv4repeat= MBConv(80,  80,  3, 1, 6, 0.25, 0.2)
+          self.mbconv4= MBConv(40,  80,  3, 2, 6, SE, 0.2)
+          self.mbconv4repeat= MBConv(80,  80,  3, 1, 6, SE, 0.2)
           #stride=1, output res=28x28
-          self.mbconv5= MBConv(80,  112, 5, 1, 6, 0.25, 0.2)
-          self.mbconv5repeat= MBConv(112,  112, 5, 1, 6, 0.25, 0.2)
+          self.mbconv5= MBConv(80,  112, 5, 1, 6, SE, 0.2)
+          self.mbconv5repeat= MBConv(112,  112, 5, 1, 6, SE, 0.2)
           #stride=2, output res=14x14
-          self.mbconv6= MBConv(112, 192, 5, 2, 6, 0.25, 0.2)
-          self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, 0.25, 0.2)
+          self.mbconv6= MBConv(112, 192, 5, 2, 6,SE, 0.2)
+          self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, SE, 0.2)
           #stride=2, output res=7x7
-          self.mbconv7= MBConv(192, 320, 3, 1, 6, 0.25, 0.2)
+          self.mbconv7= MBConv(192, 320, 3, 1, 6,SE, 0.2)
           #stride=1, output res=7x7
           self.conv1x1 = conv1x1(320,1280)
           #stride=1, output res=7x7
@@ -225,8 +232,14 @@ if (__name__ == '__main__'):
   #scheduler=optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01,  epochs=num_epochs, steps_per_epoch=len(train_loader))
 
   # Train the model
+  checkpoint = {
+  'epoch': num_epochs + 1,
+  'state_dict': model.state_dict(),
+  'optimizer': optimizer.state_dict()
+  }
+  save_ckp(checkpoint)
   total_step = len(train_loader)
- 
+
   for epoch in range(num_epochs):
       for i, (images, labels) in enumerate(train_loader):
           model.train()
@@ -241,7 +254,7 @@ if (__name__ == '__main__'):
           optimizer.zero_grad()
           loss.backward()
           optimizer.step()
-         # scheduler.step()
+          #scheduler.step()
 
           if (i+1) % 100 == 0:
               print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
@@ -258,10 +271,12 @@ if (__name__ == '__main__'):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))  
-  # Test the model
- 
- 
+        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+        checkpoint = {
+        'epoch': epoch + 1,
+        'state_dict': model.state_dict(),
+        'optimizer': optimizer.state_dict()
+        }
 
-  # Save the model checkpoint
-  torch.save(model.state_dict(), 'model.ckpt')
+
+        torch.save(checkpoint, 'checkpoint.pt')
