@@ -5,17 +5,19 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision
 from torch.autograd import Variable
+from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, models, transforms
 
 if (__name__ == '__main__'):
     # Device configuration
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(device)
+
     # Hyper parameters
     num_epochs = 40
     num_classes = 10
     batch = 10
-    learning_rate = 0.001
+    learning_rate = 0.01
 
     ################################################### Data transformations #########################################################
 
@@ -255,14 +257,28 @@ if (__name__ == '__main__'):
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+    # using nesterov seems to be giving good results i.e. slightly better convergence rate
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, nesterov=True)
+
+    # LR Scheduler ==> scheduler actually slows down convergence as seen from testing
+    #scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=0.1)
+
+    
 
     # Train the model
     total_step = len(train_loader)
     model.train()
     for epoch in range(num_epochs):
+        # reset variables for accuracy calc
         correct = 0
         total = 0
+
+        #scheduler.step() # scheduler actually slows down convergence as seen from testing
+        
+        #print epoch num
+        print('Epoch: ', (epoch + 1))
+
         for i, (inputs, labels) in enumerate(train_loader, 0):
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -281,7 +297,7 @@ if (__name__ == '__main__'):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
             if (i+1) % 100 == 0:
-                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy: {:.3f}'
+                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Training Accuracy: {:.3f}'
                         .format(epoch+1, num_epochs, i+1, total_step, loss.item(), (100 * correct / total)))
 
     # Test the model
