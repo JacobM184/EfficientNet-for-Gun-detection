@@ -259,7 +259,7 @@ if (__name__ == '__main__'):
     criterion = nn.CrossEntropyLoss()
 
     # using nesterov seems to be giving good results i.e. slightly better convergence rate
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, nesterov=True)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.5, nesterov=True)
 
     # LR Scheduler ==> scheduler actually slows down convergence as seen from testing
     #scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=0.1)
