@@ -232,12 +232,11 @@ if (__name__ == '__main__'):
   #scheduler=optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01,  epochs=num_epochs, steps_per_epoch=len(train_loader))
 
   # Train the model
-  checkpoint = {
-  'epoch': num_epochs + 1,
-  'state_dict': model.state_dict(),
-  'optimizer': optimizer.state_dict()
-  }
-  save_ckp(checkpoint)
+  checkpoint = torch.load('april24.pt')
+  model.load_state_dict(checkpoint['state_dict'])
+  optimizer.load_state_dict(checkpoint['optimizer'])
+  epoch = checkpoint['epoch']
+
   total_step = len(train_loader)
 
   for epoch in range(num_epochs):
