@@ -22,6 +22,10 @@ tb.add_scalar('Loss', loss.item(), epoch)
 tb.add_scalar('Number Correct', correct, epoch)
 tb.add_scalar('Accuracy', (100 * correct / total), epoch)
 
+tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
+tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
+tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
+
 '''
 To call TensorBoard in COLAB, run the following code:
 
