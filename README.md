@@ -36,8 +36,8 @@ Swish activation is defined as **σ(x) × x**. That is, the sigmoid of x, multip
 The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper* by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by *Ramachandran et al.*. Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
 
 These papers can be found at the following links:
-* Ramachandran et al.: <https://arxiv.org/pdf/1710.05941v1.pdf>
 * Tan et al.: <https://arxiv.org/pdf/1905.11946.pdf>
+* Ramachandran et al.: <https://arxiv.org/pdf/1710.05941v1.pdf>
 
 ### MBConv layers
 The MBConv layer is the biggest component in our EfficientNet implementation. Basically, it is a convolutional layer with Inverted residuals, Squeeze and Excitation, as well as Dropout. These three modules of MBConv are explained below:
@@ -59,7 +59,7 @@ The output of the above layers is then multiplied to the input tensor.
 The Dropout layer in our implementation works by randomly choosing nodes to deactivate at the end of an MBConv block (does not apply for all the layers, only the ones that are repeated). We chose to add this functionality to our MBConv layers because it helps mitigate the risk of the model 'memorising' data, and allows for building new and better connections in the network.
 
 ## Scaling
-We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to quickly test different versions of EfficientNet, as the parameters to be changed in each scaled model could be easily found. Examples form our Excel sheet are shown below:
+We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to quickly test different versions of EfficientNet, as the parameters to be changed in each scaled model could be easily found. We were also able to make quick changes to the scaling calculations to test out results from different scaling factors and/or rounding techniques. Examples from our Excel sheet are shown below:
 
 B3 model:
 
@@ -70,4 +70,28 @@ B1 model (with repeats in raw form, and an extra column with all repeats rounded
 ![](graphics/Annotation%202020-05-01%20212050.png)
 
 The Excel sheet can be found [here](https://drive.google.com/open?id=1RvCSW4h4D8sd5r17Tcftie6pmOvOUVz1) (Please download before using)
+
+## Training, Fine-tuning and Optimisation
+
+Over the course of this project we have trained various versions of EfficientNet with different optimisers, learning-rate schedulers, and differing numbers of epochs.
+
+The optimisers that we have tested are the Adam optimiser and the Stochastic Gradient Descent (SGD) optimiser. Initially, we were expecting the Adam optimiser to outperform SGD in our tests. However, SGD suprisingly had better convergence than Adam. As a result, we chose to continue testing SGD. During our tests with SGD, we began experimenting with the use of *Nesterov momentum*.
+
+Nesterov Momentum is a variant of SGD that speeds up training and improves convergence. It basically calculates the gradient term from an intermediate point rather than the current position. This allows for corrections to be made if the momentum overshoots the next point or is pointing in the incorrect direction. See more [here](https://dominikschmidt.xyz/nesterov-momentum/).
+
+In our testing with Nesterov momentum, we found that a momentum of 0.5 works well with our EfficientNet models.
+
+In terms of epoch testing, we have trained our models for varying numbers of epochs ranging from 40 to 224. We found that while our training accuracy percentage easily manages to reach the high 90s within 40 epochs, we needed to train for more epochs in order for our validation accuracy to be similarly as good. ***Needs more info***
+
 # Database
+
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being ***Insert number here***. 
+
+The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
+
+The reason behind having equal amount of images in each class is to mitigate the chance of our model being biased to either class.
+
+Some examples of guns from our dataset are:
+
+***Insert images here***
+
