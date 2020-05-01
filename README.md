@@ -11,7 +11,7 @@ Our planned system will detect guns in a given image/frame and attempt to create
 ## Overview
 We plan to use the EfficientNet architecture to detect guns in real-time. EfficientNet is an architecture that takes advantage of compound scaling (i.e. scaling in Depth, Width and Resolution dimensions) to achieve good accuracy with lower FLOPS and less parameters than models that scale a single dimension. A key point in the original development of this architecture was that the efficiency and accuracy of the model when scaled depends on how much you scale each dimension w.r.t each other. Therefore, the scaling factors (α, β and γ) can be found for the best results when using EfficientNet. Our scaling factors were taken from those used by other implementations.
 
-Below are two representations of our basal model (EfficientNet B0) without any scaling from the original documentation:
+Below is a representation of our basal model (EfficientNet B0) without any scaling from the original documentation:
 
 ![](graphics/EfficientNetArch.png)
 
