@@ -33,9 +33,41 @@ Swish activation is defined as **σ(x) × x**. That is, the sigmoid of x, multip
 
 ![](graphics/Swish.png)
 
-The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the []( https://arxiv.org/pdf/1905.11946.pdf "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper") by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by [](https://arxiv.org/pdf/1710.05941v1.pdf "Ramachandran et al."). Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
+The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper* by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by *Ramachandran et al.*. Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
+
+These papers can be found at the following links:
+* Ramachandran et al.: <https://arxiv.org/pdf/1710.05941v1.pdf>
+* Tan et al.: <https://arxiv.org/pdf/1905.11946.pdf>
+
+### MBConv layers
+The MBConv layer is the biggest component in our EfficientNet implementation. Basically, it is a convolutional layer with Inverted residuals, Squeeze and Excitation, as well as Dropout. These three modules of MBConv are explained below:
+
+#### Inverted Residuals
+### WRITE SOMETHING HERE
+
+#### Squeeze and Excitation
+Squeeze and Excite blocks work by *squeezing* an input using Global Average Pooling to the shape  (1, 1, *feature maps*) and multiplying this back to the input. Multiplying the (1, 1, *feature maps*) tensor back to the input increases the weighting of feature maps that have more features, thus '*exciting*' the weightings.
+
+Our implementation of Squeeze and Excite in PyTorch uses the following layers:
+* AdaptiveAvgPool2d - this layer computes the (1, 1, *feature maps*) tensor through global average pooling
+* Conv2d with ReLU activation - this layer adds non-linearity and reduces output channel complexity
+* Conv2d with Sigmoid activation - this layer gives the channel a smooth gating function
+
+The output of the above layers is then multiplied to the input tensor.
+
+#### Dropout layer
+The Dropout layer in our implementation works by randomly choosing nodes to deactivate at the end of an MBConv block (does not apply for all the layers, only the ones that are repeated). We chose to add this functionality to our MBConv layers because it helps mitigate the risk of the model 'memorising' data, and allows for building new and better connections in the network.
 
 ## Scaling
-We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to test
+We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to quickly test different versions of EfficientNet, as the parameters to be changed in each scaled model could be easily found. Examples form our Excel sheet are shown below:
 
+B3 model:
+
+![](graphics/Annotation%202020-05-01%20212145.png)
+
+B1 model (with repeats in raw form, and an extra column with all repeats rounded up):
+
+![](graphics/Annotation%202020-05-01%20212050.png)
+
+The Excel sheet can be found [here](https://drive.google.com/open?id=1RvCSW4h4D8sd5r17Tcftie6pmOvOUVz1) (Please download before using)
 # Database
