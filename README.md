@@ -13,7 +13,7 @@ We plan to use the EfficientNet architecture to detect guns in real-time. Effici
 
 Below are two representations of our basal model (EfficientNet B0) without any scaling
 
-![](graphics/EfficientNetArch.png = 250x250)
+![](graphics/EfficientNetArch.png | width=100)
 
 ![](graphics/unknown.jpg)
 
