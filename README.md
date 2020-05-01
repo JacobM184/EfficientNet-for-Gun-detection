@@ -33,7 +33,7 @@ Swish activation is defined as **σ(x) × x**. That is, the sigmoid of x, multip
 
 ![](graphics/Swish.png)
 
-The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks* paper by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by *Ramachandran et al.*. Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
+The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the []( https://arxiv.org/pdf/1905.11946.pdf "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper") by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by [](https://arxiv.org/pdf/1710.05941v1.pdf "Ramachandran et al."). Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
 
 ## Scaling
 We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to test
