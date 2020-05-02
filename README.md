@@ -33,7 +33,8 @@ Swish activation is defined as **σ(x) × x**. That is, the sigmoid of x, multip
 
 ![](graphics/Swish.png)
 
-The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper* by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by *Ramachandran et al.*. Note that the Swish activation was not used solely for MBConv layers, but also for the 1x1 and 3x3 convolutional layers
+The reason behind using Swish activation for EfficientNet is because it was said to provide better results than ReLU from both the *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks paper* by *Mingxing Tan and Quoc V. Le* as well as a Google Brain study from 2017 by *Ramachandran et al.*. Theoretically, un-like relu, swish does not discard values below 0, hence reducing information loss. Note that the Swish activation was not used solely for MBConv layers, but also for the 
+and 3x3 convolutional layers.
 
 These papers can be found at the following links:
 * Tan et al.: <https://arxiv.org/pdf/1905.11946.pdf>
@@ -43,7 +44,7 @@ These papers can be found at the following links:
 The MBConv layer is the biggest component in our EfficientNet implementation. Basically, it is a convolutional layer with Inverted residuals, Squeeze and Excitation, as well as Dropout. These three modules of MBConv are explained below:
 
 #### Inverted Residuals
-### WRITE SOMETHING HERE
+Inverted residuals firstly have a skip connection, or residual, allowing infomration and gradients to pass the block. This both enables deeper models by easing the shrinking of gradients as the model becomes deeper, but also reduces finner information being lost in the first layers of the model. The Inverted redisual uses another important idea, the 1x1 convolution. This convolution expands/decreases the number of feature maps, rather than resolution. This allows for the inverted residual block to increase the feature mapping into a higher dimension at the start of the block. This is so that non-linear activations can be applied within a expanded higher dimension of feature mappings. Non-linear activations are essential for neural networks, but can lose information, especially in lower dimensions. The non-linear activation being applied in a higher number of dimensions mitigates the informatin loss effect. Afterwards, the 1x1 convolution is reapplied to shrink the number of feature mappings. Then the linear output is added to the skip connection. The reason for expanding then compressing the feature map dimension is to reduce the number of parameters passed in the skip connection, increasing model efficiency. 
 
 #### Squeeze and Excitation
 Squeeze and Excite blocks work by *squeezing* an input using Global Average Pooling to the shape  (1, 1, *feature maps*) and multiplying this back to the input. Multiplying the (1, 1, *feature maps*) tensor back to the input increases the weighting of feature maps that have more features, thus '*exciting*' the weightings.
