@@ -297,7 +297,7 @@ if (__name__ == '__main__'):
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=15, verbose=True, threshold=0.0001, 
                                                      threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
-    restart=0
+    restart=1
     if(restart):
           checkpoint = torch.load('/content/drive/My Drive/b1.pt')
           model.load_state_dict(checkpoint['state_dict'])
@@ -348,7 +348,7 @@ if (__name__ == '__main__'):
         }
 
         # TensorBoard code to add line graphs for loss, correct guesses, and training accuracy
-        tb.add_scalar('Loss', loss.item(), epoch)
+        tb.add_scalar('Training Loss', loss.item(), epoch)
         tb.add_scalar('Number Correct', correct, epoch)
         tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
 
@@ -369,13 +369,15 @@ if (__name__ == '__main__'):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 outputs = model(inputs)
+                loss = criterion(outputs, labels)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-            print('Test Accuracy of the model on the 10000 test images: {:.2f} %'.format(100 * correct / total)) 
+            print('Test Accuracy: {:.2f} %, Test Loss: {:.4f}'.format((100 * correct / total), loss.item())) 
             # adding testing accuracy to TensorBoard
             tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
+            tb.add_scalar('Testing Loss', loss.item(), epoch)
             scheduler.step(correct / total)
 
     # Test the model
