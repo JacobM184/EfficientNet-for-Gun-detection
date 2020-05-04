@@ -399,11 +399,11 @@ if (__name__ == '__main__'):
 
     # get predictions from model
     with torch.no_grad():
-      prediction_dataloader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch)
-      train_preds = get_all_preds(model, prediction_dataloader)
+      prediction_dataloader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch)
+      test_preds = get_all_preds(model, prediction_dataloader)
 
     # create confusion matrix using sklearn
-    c_mtrx = confusion_matrix(train_set.targets, train_preds.argmax(dim=1))
+    c_mtrx = confusion_matrix(test_set.targets, test_preds.argmax(dim=1))
 
     # labels for data
     names = ('gun', 'not gun')
@@ -440,7 +440,7 @@ if (__name__ == '__main__'):
     plot_confusion_matrix(c_mtrx, names)
 
     # get precision, recall and f1
-    print(train_set.targets, train_preds.argmax(dim=1))
+    print(test_set.targets, test_preds.argmax(dim=1))
 
   
 
