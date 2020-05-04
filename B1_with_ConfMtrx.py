@@ -50,11 +50,11 @@ if (__name__ == '__main__'):
 
     ################################################### Dataset loading #########################################################
 
-    train_set = datasets.ImageFolder(root="/content/drive/Shared drives/COMPSYS302_Python_Project/data/guntrain", transform = trainingTransforms)
+    train_set = datasets.ImageFolder(root="/content/drive/My Drive/data/train", transform = trainingTransforms)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch, shuffle=True, num_workers=4)
 
-    test_set = datasets.ImageFolder(root="/content/drive/Shared drives/COMPSYS302_Python_Project/data/gunval", transform = validTransforms)
+    test_set = datasets.ImageFolder(root="/content/drive/My Drive/data/val", transform = validTransforms)
     
     test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch, shuffle=False, num_workers=4)
 
@@ -260,13 +260,20 @@ if (__name__ == '__main__'):
           out = self.fc(out)
           return out
 
+#################################################### Tensorboard ########################################################################
+    tb = SummaryWriter()
+    inputs, labels = next(iter(train_loader))
+    network = ConvNet()
+    tb.add_graph(network, inputs)
+    tb.close()
+#########################################################################################################################################
     model = ConvNet(num_classes).to(device)
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
 
     # using nesterov seems to be giving good results i.e. slightly better convergence rate
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, nesterov=True)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.5, nesterov=True)
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=15, verbose=True, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     # LR Scheduler ==> scheduler actually slows down convergence as seen from testing
@@ -279,7 +286,7 @@ if (__name__ == '__main__'):
           epoch = checkpoint['epoch']
           print("restarting!")
     
-
+    print(epoch)
     # Train the model
     total_step = len(train_loader)
     model.train()
@@ -321,8 +328,18 @@ if (__name__ == '__main__'):
         'optimizer': optimizer.state_dict()
         }
 
-        model_save_name = 'b1.pt'
-        path = "/content/drive/My Drive/{model_save_name}" 
+        # TensorBoard code to add line graphs for loss, correct guesses, and training accuracy
+        tb.add_scalar('Loss', loss.item(), epoch)
+        tb.add_scalar('Number Correct', correct, epoch)
+        tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
+
+        # Adding histograms for weights, biases and gradients to TensorBoard
+        tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
+        tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
+        tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
+
+        #model_save_name = 'b1.pt'
+        path = "/content/drive/My Drive/b1.pt" 
         torch.save(checkpoint, path)
         if(1):
            model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
@@ -338,11 +355,14 @@ if (__name__ == '__main__'):
                 correct += (predicted == labels).sum().item()
 
             print('Test Accuracy of the model on the 10000 test images: {:.2f} %'.format(100 * correct / total)) 
+            # adding testing accuracy to TensorBoard
+            tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
             scheduler.step(correct / total)
 
     # Test the model
     
     # Confusion matrix code
+    # function to get predictions from model
     @torch.no_grad()
     def get_all_preds(model, loader):
       all_preds = torch.tensor([])
@@ -356,16 +376,21 @@ if (__name__ == '__main__'):
           )
       return all_preds
 
+    # get predictions from model
     with torch.no_grad():
       prediction_dataloader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch)
       train_preds = get_all_preds(model, prediction_dataloader)
 
+    # create confusion matrix using sklearn
     c_mtrx = confusion_matrix(train_set.targets, train_preds.argmax(dim=1))
 
+    # labels for data
     names = ('gun', 'not gun')
 
+    # create plot of size 2x2
     plt.figure(figsize=(2,2))
 
+    # function to plot confusion matrix
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
         if normalize:
             cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -390,6 +415,7 @@ if (__name__ == '__main__'):
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
 
+    # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
 
   
