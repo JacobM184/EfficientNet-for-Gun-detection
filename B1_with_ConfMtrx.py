@@ -6,7 +6,7 @@ import torch.optim as optim
 import torchvision
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report
 import itertools
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -17,10 +17,15 @@ if (__name__ == '__main__'):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(device)
 
+    # TensorBoard code
+    %load_ext tensorboard
+    logs_base_dir = "runs"
+    os.makedirs(logs_base_dir, exist_ok=True)
+
     # Hyper parameters
     num_epochs = 300
     num_classes = 2
-    batch = 10
+    batch = 3
     learning_rate = 0.01
 
 
@@ -50,13 +55,25 @@ if (__name__ == '__main__'):
 
     ################################################### Dataset loading #########################################################
 
-    train_set = datasets.ImageFolder(root="/content/drive/My Drive/data/train", transform = trainingTransforms)
+    # set directory for data
+    data = "/content/drive/My Drive/data"
+
+    # get training data from the 'train' sub-directory and load the data
+    train_set = datasets.ImageFolder(data + "/train", transform = trainingTransforms)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch, shuffle=True, num_workers=4)
 
-    test_set = datasets.ImageFolder(root="/content/drive/My Drive/data/val", transform = validTransforms)
-    
+    # get testing data from the 'val' sub-directory and load the data
+    test_set = datasets.ImageFolder(data + "/val", transform = validTransforms)
+  
     test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch, shuffle=False, num_workers=4)
+
+    # print lengths of data
+    print("test set length: ",len(test_set))
+    print("test set batch length: ",len(test_loader))
+    print("train set length: ",len(train_set))
+    print("train set batch length: ",len(train_loader))
+    
 
     ################################################### Swish activation #########################################################
 
@@ -200,29 +217,30 @@ if (__name__ == '__main__'):
               Swish())
           
           #(inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate)
-          #stride=1, output res=149
+          #stride=1
           self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25, 0.2)
-          #stride=2, output res=150 74 
+          #stride=2, repeat stride = 1
           self.mbconv2= MBConv(16,  24,  3, 2, 6, 0.25, 0.2)
           self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, 0.25, 0.2)
-          #stride=2, output res=74 36
+          #stride=2, repeat stride = 1
           self.mbconv3= MBConv(24,  40, 5, 2, 6, 0.25, 0.2)
           self.mbconv3repeat= MBConv(40, 40,  5, 1, 6, 0.25, 0.2)
-          #stride=2, output res=37 17.5
+          #stride=2, repeat stride = 1
           self.mbconv4= MBConv(40,  80, 3, 2, 6, 0.25, 0.2)
           self.mbconv4repeat= MBConv(80, 80,  3, 1, 6, 0.25, 0.2)
-          #stride=1, output res=35 16
+          #stride=1, repeat stride = 1
           self.mbconv5= MBConv(80,  112, 5, 1, 6, 0.25, 0.2)
           self.mbconv5repeat= MBConv(112,  112, 5, 1, 6, 0.25, 0.2)
-          #stride=2, output res=17 7
+          #stride=2, repeat stride = 1
           self.mbconv6= MBConv(112, 192, 5, 2, 6, 0.25, 0.2)
           self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, 0.25, 0.2)
-          #stride=2, output res=16 6
+          #stride=2
           self.mbconv7= MBConv(192, 320, 3, 1, 6, 0.25, 0.2)
-          #stride=1, output res=16 6
+          #stride=1
           self.conv1x1 = conv1x1(320,1280)
-          #stride=1, output res=16 6
+          #stride=1
           self.pool=  nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+          #8x8x1280 tensor input to two node output
           self.fc = nn.Linear(8*8*1280, num_classes)
 
 
@@ -260,24 +278,25 @@ if (__name__ == '__main__'):
           out = self.fc(out)
           return out
 
-#################################################### Tensorboard ########################################################################
+    ################################################ Tensorboard ########################################################################
     tb = SummaryWriter()
     inputs, labels = next(iter(train_loader))
     network = ConvNet()
     tb.add_graph(network, inputs)
     tb.close()
-#########################################################################################################################################
+    #####################################################################################################################################
     model = ConvNet(num_classes).to(device)
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
 
-    # using nesterov seems to be giving good results i.e. slightly better convergence rate
+    # using nesterov seems to be giving good results i.e. slightly better convergence rate with 0.5 momentum
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.5, nesterov=True)
 
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=15, verbose=True, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
-    # LR Scheduler ==> scheduler actually slows down convergence as seen from testing
-    #scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=0.1)
+     # LR Scheduler to change rate when convergence plateaus for 15 epochs
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=15, verbose=True, threshold=0.0001, 
+                                                     threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
+
     restart=0
     if(restart):
           checkpoint = torch.load('/content/drive/My Drive/b1.pt')
@@ -285,8 +304,8 @@ if (__name__ == '__main__'):
           optimizer.load_state_dict(checkpoint['optimizer'])
           epoch = checkpoint['epoch']
           print("restarting!")
-    
-    print(epoch)
+          print(epoch)
+          
     # Train the model
     total_step = len(train_loader)
     model.train()
@@ -334,9 +353,9 @@ if (__name__ == '__main__'):
         tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
 
         # Adding histograms for weights, biases and gradients to TensorBoard
-        tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
-        tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
-        tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
+        #tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
+        #tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
+        #tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
 
         #model_save_name = 'b1.pt'
         path = "/content/drive/My Drive/b1.pt" 
@@ -417,6 +436,9 @@ if (__name__ == '__main__'):
 
     # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
+
+    # get precision, recall and f1
+    print(train_set.targets, train_preds.argmax(dim=1))
 
   
 
