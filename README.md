@@ -86,7 +86,7 @@ Nesterov Momentum is a variant of SGD that speeds up training and improves conve
 
 In our testing with Nesterov momentum, we found that a momentum of 0.5 works well with our EfficientNet models.
 
-In terms of epoch testing, we have trained our models for varying numbers of epochs ranging from 40 to 224. We found that while our training accuracy percentage easily manages to reach the high 90s within 40 epochs, we needed to train for more epochs in order for our validation accuracy to be similarly as good. ***Needs more info***
+In terms of epoch testing, we have trained our models for varying numbers of epochs ranging from 40 to 224. We found that while our training accuracy percentage easily manages to reach the high 90s within 40 epochs, we needed to train for more epochs in order for our validation accuracy to be similarly as good.
 
 ## Extra features
 In addition to our EfficientNet model, we decided to create a bounding box algorithm to daw boxes around any guns that we detect. This algorithm works alongside our model, but is not actually part of the model itself. Our bounding box algorithm works by way of taking sections from an image contianing a detected gun and using a 'sliding window' to check for where in that section a gun may be.
@@ -100,7 +100,7 @@ After one round of the above sequence, the algorithm checks if the probabilities
 
 # Database
 
-Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *50,000*. This dataset will be further split into training and validation, with lengths of ***Insert training num*** and ***Insert validation num***, respectively. For testing, we have a few images left over from our dataset preparation that we can use. However, our main plan of action is to do real-time testing through a webcan using printouts of gun images.
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *50,000*. This dataset will be further split into training and validation sets. For testing, we have a few images left over from our dataset preparation that we can use. However, our main plan of action is to do real-time testing through a webcan using printouts of gun images.
 
 The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
 
