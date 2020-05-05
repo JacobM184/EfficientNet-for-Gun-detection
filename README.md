@@ -4,7 +4,7 @@
 Below are the steps to be taken when using our code:
 
 1. Choose file to download
-    * We have 4 model files: **B0, B0 without AvgPool, B1, and B1 without DropOut ** 
+    * We have 4 model files: **B0, B0 without AvgPool, B1, and B1 without DropOut** 
 2. Download dataset
     * our dataset can be downloaded from the following link: 
 3. Put project files and dataset folder in the same directory
