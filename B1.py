@@ -13,6 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, models, transforms
 
 if (__name__ == '__main__'):
+
     # Device configuration
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(device)
@@ -35,22 +36,19 @@ if (__name__ == '__main__'):
 
     ################################################### Data transformations #########################################################
 
-    trainingTransforms = transforms.Compose([#transforms.RandomResizedCrop(size=256, scale=(0.75, 1.0)), 
-                                             #transforms.RandomRotation(degrees=25),
-                                             #transforms.RandomHorizontalFlip(),
-                                             #transforms.ColorJitter(),
-                                             #transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),
-                                             #transforms.CenterCrop(size=224),
+    # Various transformations for training set
+    trainingTransforms = transforms.Compose([transforms.RandomRotation(degrees=25),
+                                             transforms.RandomHorizontalFlip(),
+                                             transforms.ColorJitter(),
+                                             transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),
                                              transforms.Resize((240, 240), interpolation=2),
                                              transforms.ToTensor(),
-                                             #transforms.RandomErasing(),
-                                             #transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                              ])
-
+    # Various transformations for validation set
     validTransforms = transforms.Compose([transforms.Resize((240,240), interpolation=2),
-                                          #transforms.CenterCrop(size=224),
                                           transforms.ToTensor(),
-                                          #transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                           ])
 
     ################################################### Dataset loading #########################################################
@@ -192,7 +190,7 @@ if (__name__ == '__main__'):
 
             # combining all sequential blocks under one 'master' sequential block
             self.MBConvLayers = nn.Sequential(*MBconv)
-            self.DropOut = nn.Dropout2d(p=self.DropRate, inplace=True)
+
         # forward function for MBConv
         def forward(self, x):
 
@@ -245,6 +243,7 @@ if (__name__ == '__main__'):
 
 
       def forward(self, x):
+          # layer sequence for EfficientNet B1
           out = self.layer1(x)
 
           out = self.mbconv1(out)
@@ -282,9 +281,13 @@ if (__name__ == '__main__'):
     tb = SummaryWriter()
     inputs, labels = next(iter(train_loader))
     network = ConvNet()
+    grid = torchvision.utils.make_grid(inputs)
+    tb.add_image('images', grid, 0)
     tb.add_graph(network, inputs)
     tb.close()
-    #####################################################################################################################################
+    ################################################## Training/Eval Code ###############################################################
+
+    # Define model
     model = ConvNet(num_classes).to(device)
 
     # Loss and optimizer
@@ -297,6 +300,8 @@ if (__name__ == '__main__'):
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=15, verbose=True, threshold=0.0001, 
                                                      threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
+    # code to restart training from checkpoint
+    # restart must be set to 1 when required
     restart=1
     if(restart):
           checkpoint = torch.load('/content/drive/My Drive/b1.pt')
@@ -314,15 +319,12 @@ if (__name__ == '__main__'):
         correct = 0
         total = 0
 
-        #scheduler.step() # scheduler actually slows down convergence as seen from testing
-        
         #print epoch num
         print('Epoch: ', (epoch + 1))
         model.train()
         for i, (inputs, labels) in enumerate(train_loader, 0):
             inputs = inputs.to(device)
             labels = labels.to(device)
-            # print(inputs[0].size())
             optimizer.zero_grad()
 
             # Forward pass
@@ -336,11 +338,13 @@ if (__name__ == '__main__'):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+
+            # print out results
             if (i+1) % 500 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Training Accuracy: {:.3f}'
                         .format(epoch+1, num_epochs, i+1, total_step, loss.item(), (100 * correct / total)))
         
-      
+        # set checkpoint variables
         checkpoint = {
         'epoch': epoch + 1,
         'state_dict': model.state_dict(),
@@ -360,11 +364,17 @@ if (__name__ == '__main__'):
         #model_save_name = 'b1.pt'
         path = "/content/drive/My Drive/b1.pt" 
         torch.save(checkpoint, path)
+
+        # testing loop
+        # can turn off by changing if(1) to if(0) as required
         if(1):
-           model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
+           # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
+           model.eval()  
            with torch.no_grad():
             correct = 0
             total = 0
+
+            # similar structure to trainig loop
             for inputs, labels in test_loader:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
@@ -374,42 +384,17 @@ if (__name__ == '__main__'):
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
+            # print out testing results
             print('Test Accuracy: {:.2f} %, Test Loss: {:.4f}'.format((100 * correct / total), loss.item())) 
+
             # adding testing accuracy to TensorBoard
             tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
             tb.add_scalar('Testing Loss', loss.item(), epoch)
             scheduler.step(correct / total)
 
-    # Test the model
-    
+    # Evaluate the model
+
     # Confusion matrix code
-
-    predlist=torch.zeros(0,dtype=torch.long, device='cuda:0')
-    lbllist=torch.zeros(0,dtype=torch.long, device='cuda:0')
-    # get predictions from model
-    with torch.no_grad():
-      for i, (inputs, labels) in enumerate(test_loader, 0):
-        inputs = inputs.to(device)
-        labels = labels.to(device)
-
-        outputs = model(inputs)
-        _, predicted = torch.max(outputs.data, 1)
-
-        predlist = torch.cat([predlist,predicted.view(-1)])
-        lbllist=torch.cat([lbllist,labels.view(-1)])
-
-
-    predlist = predlist.to('cpu')
-    lbllist = lbllist.to('cpu')
-
-    # create confusion matrix using sklearn
-    c_mtrx = confusion_matrix(lbllist, predlist)
-
-    # labels for data
-    names = ('gun', 'not gun')
-
-    # create plot of size 2x2
-    plt.figure(figsize=(2,2))
 
     # function to plot confusion matrix
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -436,6 +421,34 @@ if (__name__ == '__main__'):
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
 
+    predlist=torch.zeros(0,dtype=torch.long, device='cuda:0')
+    lbllist=torch.zeros(0,dtype=torch.long, device='cuda:0')
+
+    # get predictions from model
+    with torch.no_grad():
+      for i, (inputs, labels) in enumerate(test_loader, 0):
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+
+        outputs = model(inputs)
+        _, predicted = torch.max(outputs.data, 1)
+
+        predlist = torch.cat([predlist,predicted.view(-1)])
+        lbllist=torch.cat([lbllist,labels.view(-1)])
+
+
+    predlist = predlist.to('cpu')
+    lbllist = lbllist.to('cpu')
+
+    # create confusion matrix using sklearn
+    c_mtrx = confusion_matrix(lbllist, predlist)
+
+    # labels for data
+    names = ('gun', 'not gun')
+
+    # create plot of size 2x2
+    plt.figure(figsize=(2,2))
+
     # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
 
@@ -444,5 +457,5 @@ if (__name__ == '__main__'):
 
   
 
-    # Save the model checkpoint 
+    # Save the final model checkpoint 
     torch.save(model.state_dict(), 'model.ckpt')
