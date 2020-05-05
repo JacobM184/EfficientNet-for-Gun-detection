@@ -18,7 +18,7 @@ if (__name__ == '__main__'):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(device)
 
-    # load TensorBoard
+    # TensorBoard code
     %load_ext tensorboard
     logs_base_dir = "runs"
     os.makedirs(logs_base_dir, exist_ok=True)
@@ -29,16 +29,26 @@ if (__name__ == '__main__'):
     batch = 3
     learning_rate = 0.01
 
+
+    def save_ckp(state):
+      f_path = 'checkpoint.pt'
+      torch.save(state, f_path)
+
     ################################################### Data transformations #########################################################
 
     # Various transformations for training set
-    trainingTransforms = transforms.Compose([transforms.Resize((240, 240), interpolation=2),
-                                             transforms.ToTensor()
+    trainingTransforms = transforms.Compose([transforms.RandomRotation(degrees=25),
+                                             transforms.RandomHorizontalFlip(),
+                                             transforms.ColorJitter(),
+                                             transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),
+                                             transforms.Resize((240, 240), interpolation=2),
+                                             transforms.ToTensor(),
+                                             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                              ])
-
     # Various transformations for validation set
     validTransforms = transforms.Compose([transforms.Resize((240,240), interpolation=2),
-                                          transforms.ToTensor()
+                                          transforms.ToTensor(),
+                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                           ])
 
     ################################################### Dataset loading #########################################################
@@ -47,12 +57,12 @@ if (__name__ == '__main__'):
     data = "/content/drive/Shared drives/COMPSYS302_Python_Project/data"
 
     # get training data from the 'train' sub-directory and load the data
-    train_set = datasets.ImageFolder(data + "/train", transform = trainingTransforms)
+    train_set = datasets.ImageFolder(data + "/guntrain", transform = trainingTransforms)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch, shuffle=True, num_workers=4)
 
     # get testing data from the 'val' sub-directory and load the data
-    test_set = datasets.ImageFolder(data + "/val", transform = validTransforms)
+    test_set = datasets.ImageFolder(data + "/gunval", transform = validTransforms)
   
     test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch, shuffle=False, num_workers=4)
 
@@ -71,7 +81,7 @@ if (__name__ == '__main__'):
             self.sigmoid = nn.Sigmoid()
 
         def forward(self, y):
-            # swish is equal to the sigmoid of x multiplied by x
+            # swish is basically equal to the sigmoid of x multiplied by x
             return y * self.sigmoid(y)
 
 
@@ -83,7 +93,8 @@ if (__name__ == '__main__'):
             nn.Conv2d(inputCh, outputCh, 1, 1, 0, bias=False),
             nn.BatchNorm2d(outputCh),
             Swish()
-        )    
+        )
+
 
     ################################################### Squeeze and Excitation ####################################################
 
@@ -120,7 +131,6 @@ if (__name__ == '__main__'):
             # calculate channels after expansion
             expandedCh = inputCh * expandRatio
 
-            
             # array to hold 'sub layers' of MBConv layer
             MBconv = []
 
@@ -168,7 +178,7 @@ if (__name__ == '__main__'):
 
         # forward function for MBConv
         def forward(self, x):
-          return self.MBConvLayers(x)
+            return self.MBConvLayers(x)
 
 
     ############################################## Implementation for training & testing ###########################################
@@ -183,7 +193,7 @@ if (__name__ == '__main__'):
               nn.BatchNorm2d(32),
               Swish())
           
-          #(inputCh, outputCh, filterSize, stride, expandRatio, SERatio)
+          #(inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate)
           #stride=1
           self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25)
           #stride=2, repeat stride = 1
@@ -240,19 +250,20 @@ if (__name__ == '__main__'):
 
           out = self.conv1x1(out)
 
+          #out = torch.mean(out, (2, 3))
           out=self.pool(out)
           out = out.reshape(out.size(0), -1)
           out = self.fc(out)
-
           return out
 
-    ################################################ Tensorboard Code ###################################################################
+    ################################################ Tensorboard ########################################################################
     tb = SummaryWriter()
     inputs, labels = next(iter(train_loader))
     network = ConvNet()
+    grid = torchvision.utils.make_grid(inputs)
+    tb.add_image('images', grid, 0)
     tb.add_graph(network, inputs)
     tb.close()
-
     ################################################## Training/Eval Code ###############################################################
 
     # Define model
@@ -272,7 +283,7 @@ if (__name__ == '__main__'):
     # restart must be set to 1 when required
     restart=0
     if(restart):
-          checkpoint = torch.load('/content/drive/My Drive/b1_nodrop.pt')
+          checkpoint = torch.load('/content/drive/My Drive/b1.pt')
           model.load_state_dict(checkpoint['state_dict'])
           optimizer.load_state_dict(checkpoint['optimizer'])
           epoch = checkpoint['epoch']
@@ -281,12 +292,16 @@ if (__name__ == '__main__'):
           
     # Train the model
     total_step = len(train_loader)
+    loss_plt = []
+    tst_loss = []
+    tst_acc = []
+    trn_acc = []
     model.train()
     for epoch in range(num_epochs):
         # reset variables for accuracy calc
         correct = 0
         total = 0
-        
+
         #print epoch num
         print('Epoch: ', (epoch + 1))
         model.train()
@@ -306,11 +321,18 @@ if (__name__ == '__main__'):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-            
+            running_loss += loss.item() * inputs.size(0)
             # print out results
-            if (i+1) % 500 == 0:
+            if (i+1) % 100 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Training Accuracy: {:.3f}'
                         .format(epoch+1, num_epochs, i+1, total_step, loss.item(), (100 * correct / total)))
+
+        # calc epoch loss and append to array        
+        epoch_loss = running_loss / len(train_loader)
+        loss_plt.append(epoch_loss)
+
+        # append training accuracy
+        trn_acc.append((100 * correct / total))
         
         # set checkpoint variables
         checkpoint = {
@@ -325,12 +347,12 @@ if (__name__ == '__main__'):
         tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
 
         # Adding histograms for weights, biases and gradients to TensorBoard
-        #tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
-        #tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
-        #tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
+        tb.add_histogram('mbconv1 bias', model.conv1x1.bias, epoch) 
+        tb.add_histogram('mbconv1 weight', model.conv1x1.weight, epoch)
+        tb.add_histogram('mbconv1 weight gradients', model.conv1x1.weight.grad, epoch)
 
         #model_save_name = 'b1.pt'
-        path = "/content/drive/My Drive/b1_nodrop.pt" 
+        path = "/content/drive/My Drive/b1.pt" 
         torch.save(checkpoint, path)
 
         # testing loop
@@ -341,7 +363,7 @@ if (__name__ == '__main__'):
            with torch.no_grad():
             correct = 0
             total = 0
-            
+
             # similar structure to trainig loop
             for inputs, labels in test_loader:
                 inputs = inputs.to(device)
@@ -351,16 +373,25 @@ if (__name__ == '__main__'):
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-            
+
+                running_tst += loss.item() * inputs.size(0)
+
             # print out testing results
-            print('Test Accuracy: {:.2f} %, Test Loss: {:.4f}'.format((100 * correct / total), loss.item()))
+            print('Test Accuracy: {:.2f} %, Test Loss: {:.4f}'.format((100 * correct / total), loss.item())) 
+
+            # calculate and append validation loss values
+            epoch_tst = running_tst / len(test_loader)
+            tst_loss.append(epoch_tst)
+
+            # append validation accuracy
+            tst_acc.append((100 * correct / total))
 
             # adding testing accuracy to TensorBoard
             tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
             tb.add_scalar('Testing Loss', loss.item(), epoch)
             scheduler.step(correct / total)
 
-    # Evaluate the model
+   # Evaluate the model
 
     # Confusion matrix code
 
@@ -415,7 +446,7 @@ if (__name__ == '__main__'):
     names = ('gun', 'not gun')
 
     # create plot of size 2x2
-    plt.figure(figsize=(2,2))
+    plt.figure(1)
 
     # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
@@ -423,7 +454,33 @@ if (__name__ == '__main__'):
     # get precision, recall and f1
     print(classification_report(lbllist, predlist))
 
-  
+    # plot training loss
+    plt.figure(2)
+    plt.title('Training Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(loss_plt)
+
+    # plot validation loss
+    plt.figure(3)
+    plt.title('Validation Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(tst_loss)
+
+    # plot training accuracy
+    plt.figure(4)
+    plt.title('Training Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(trn_acc)
+
+    # plot validation accuracy
+    plt.figure(5)
+    plt.title('Validation Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(tst_acc)
 
     # Save the final model checkpoint 
     torch.save(model.state_dict(), 'model.ckpt')
