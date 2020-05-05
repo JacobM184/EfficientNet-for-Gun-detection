@@ -23,7 +23,7 @@ if (__name__ == '__main__'):
     os.makedirs(logs_base_dir, exist_ok=True)
 
     # Hyper parameters
-    num_epochs = 300
+    num_epochs = 0
     num_classes = 2
     batch = 3
     learning_rate = 0.01
@@ -383,27 +383,27 @@ if (__name__ == '__main__'):
     # Test the model
     
     # Confusion matrix code
-    # function to get predictions from model
-    @torch.no_grad()
-    def get_all_preds(model, loader):
-      all_preds = torch.tensor([])
-      for batch in loader:
-          images, labels = batch
 
-          preds = model(images)
-          all_preds = torch.cat(
-              (all_preds, preds)
-              ,dim=0
-          )
-      return all_preds
-
+    predlist=torch.zeros(0,dtype=torch.long, device='cuda:0')
+    lbllist=torch.zeros(0,dtype=torch.long, device='cuda:0')
     # get predictions from model
     with torch.no_grad():
-      prediction_dataloader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch)
-      test_preds = get_all_preds(model, prediction_dataloader)
+      for i, (inputs, labels) in enumerate(test_loader, 0):
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+
+        outputs = model(inputs)
+        _, predicted = torch.max(outputs.data, 1)
+
+        predlist = torch.cat([predlist,predicted.view(-1)])
+        lbllist=torch.cat([lbllist,labels.view(-1)])
+
+
+    predlist = predlist.to('cpu')
+    lbllist = lbllist.to('cpu')
 
     # create confusion matrix using sklearn
-    c_mtrx = confusion_matrix(test_set.targets, test_preds.argmax(dim=1))
+    c_mtrx = confusion_matrix(lbllist, predlist)
 
     # labels for data
     names = ('gun', 'not gun')
@@ -440,9 +440,9 @@ if (__name__ == '__main__'):
     plot_confusion_matrix(c_mtrx, names)
 
     # get precision, recall and f1
-    print(test_set.targets, test_preds.argmax(dim=1))
+    print(classification_report(lbllist, predlist))
 
   
 
-  # Save the model checkpoint 
+    # Save the model checkpoint 
     torch.save(model.state_dict(), 'model.ckpt')
