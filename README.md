@@ -48,7 +48,7 @@ Inverted residuals firstly have a skip connection, or residual, allowing informa
 
 Non-linear activations are essential for neural networks, but can lose information, especially in lower dimensions. The non-linear activation being applied in a higher number of dimensions mitigates the information loss effect. Additionally, depthwise seperable convolutions are applied, where convolutions are applied on indiviudal feature map layers. Afterwards, the 1x1 convolution is re-applied to shrink the number of feature mappings, and at the same time achieve spatial feature mapping. The linear output is then added to the skip connection. The use of a depthwise seperable convolution increases efficiency by an order of magnitude, by reducing the number of parameters convolved. 
 
-#### Squeeze and Excitation
+#### Squeeze and Excite
 Squeeze and Excite blocks work by *squeezing* an input using Global Average Pooling to the shape  (1, 1, *feature maps*) and multiplying this back to the input. Multiplying the (1, 1, *feature maps*) tensor back to the input increases the weighting of feature maps that have more features, thus '*exciting*' the weightings.
 
 Our implementation of Squeeze and Excite in PyTorch uses the following layers:
@@ -94,7 +94,7 @@ In addition to our EfficientNet model, we decided to create a bounding box algor
 The positions of our sliding window in each input image are as shown below:
 ![](graphics/BBox.png)
 
-(Note: blue is the area of the sliding window, green is the image. Inititally, the program checks the image to ensure there is a gun in the input)
+(Note: blue is the area of the sliding window, green is the image. Inititally, the program checks the entire image to ensure there is a gun in the input)
 
 After one round of the above sequence, the algorithm checks if the probabilities for guns in any of the boxes are greater than the threshold probability (which is updated to the highest probability found at the end of each sequence). If there is a higher probability, then the section of the image covered by the sliding window for the hisghest probability will become the input to the algorithm and so on. Eventually, the coordinates of the sliding window with the highest probability will become the coordinates of the bounding box.
 
