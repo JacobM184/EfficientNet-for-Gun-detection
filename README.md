@@ -4,7 +4,7 @@
 Below are the steps to be taken when using our code:
 
 1. Choose file to download
-    * We have 4 model files: **B1, B0, B0, & B0** (CHANGE NAMES)
+    * We have 4 model files: **B0, B0 without AvgPool, B1, and B1 without DropOut ** 
 2. Download dataset
     * our dataset can be downloaded from the following link: 
 3. Put project files and dataset folder in the same directory
@@ -129,21 +129,21 @@ Some examples of guns from our dataset are:
 Our final four models were limited to using variations of B0 and B1 models as we were limited in terms of time and hardware. Because our dataset was so large (at 50,000 images) we could not afford the time to train all four models with that amount of data. As a result, we had to cut down on model size as well as datasets. The models we have used are outlined below:
 
 Models               | Dataset
----------------------|---------------------
-B0 with 0.5 momentum | 5k synthetic + real
-B0 with 0.9 momentum | 5k synthetic + real
-B0 with diff repeats | 5k synthetic + real
-B1                   | 5k synthetic + real
+---------------------|------------------------
+B0                   | synthetic + real images
+B0 without AvgPool   | synthetic + real images
+B1                   | synthetic + real images
+B1 without DropOut   | synthetic + real images
 
 The results and evaluation for each model is outlined below:
 
-### B0 with 0.5 momentum
+### B0
 
-### B0 with 0.9 momentum
-
-### B0 with diff repeats
+### B0 without AvgPool
 
 ### B1
+
+### B1 without DropOut
 
 # Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
