@@ -11,7 +11,7 @@ Below are the steps to be taken when using our code:
     * please ensure you extract from zip
 4. Navigate to directory in console and run desired file
 
-Note: Please ensure that you have a CUDA enabled GPU for training
+Note: Please ensure that you have a CUDA enabled GPU for training. Also ensure that you have TensorBoard installed, as our code contains TensorBoard code for some metrics.
 
 # Gun detection system
 
