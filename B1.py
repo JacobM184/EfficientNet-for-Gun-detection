@@ -317,6 +317,8 @@ if (__name__ == '__main__'):
     tst_loss = []
     tst_acc = []
     trn_acc = []
+    running_tst = 0
+    running_loss = 0
     model.train()
     for epoch in range(num_epochs):
         # reset variables for accuracy calc
