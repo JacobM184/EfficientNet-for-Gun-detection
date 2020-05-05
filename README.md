@@ -3,6 +3,16 @@
 # Instructions
 Below are the steps to be taken when using our code:
 
+1. Choose file to download
+    * We have 4 model files: **B1, B0, B0, & B0** (CHANGE NAMES)
+2. Download dataset
+    * our dataset can be downloaded from the following link: 
+3. Put project files and dataset folder in the same directory
+    * please ensure you extract from zip
+4. Navigate to directory in console and run desired file
+
+Note: Please ensure that you have a CUDA enabled GPU for training
+
 # Gun detection system
 
 Mass shootings are an unfortunate everyday reality in today's world. Stopping mass shootings have proven to be extremely difficult without drastic and extreme measures. We aim to develop a deep-learning-based solution that will help reduce casualties from shootings through early detection and reporting. 
