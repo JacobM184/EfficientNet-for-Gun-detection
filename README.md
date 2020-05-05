@@ -1,4 +1,8 @@
 # CS302-Python-2020-Group32
+
+# Instructions
+Below are the steps to be taken when using our code:
+
 # Gun detection system
 
 Mass shootings are an unfortunate everyday reality in today's world. Stopping mass shootings have proven to be extremely difficult without drastic and extreme measures. We aim to develop a deep-learning-based solution that will help reduce casualties from shootings through early detection and reporting. 
@@ -139,6 +143,6 @@ Our future aims for this project are as follows:
 * Use our full dataset; Maybe collate more images for use in this dataset
 * Improving inference times of our models
 * Improve the accuracy of our bounding box system
-* Improving speed of boundin box generation
+* Improving speed of bounding box generation
 
 
