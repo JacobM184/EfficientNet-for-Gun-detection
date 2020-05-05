@@ -313,6 +313,10 @@ if (__name__ == '__main__'):
           
     # Train the model
     total_step = len(train_loader)
+    loss_plt = []
+    tst_loss = []
+    tst_acc = []
+    trn_acc = []
     model.train()
     for epoch in range(num_epochs):
         # reset variables for accuracy calc
@@ -338,11 +342,18 @@ if (__name__ == '__main__'):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
+            running_loss += loss.item() * inputs.size(0)
             # print out results
             if (i+1) % 500 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Training Accuracy: {:.3f}'
                         .format(epoch+1, num_epochs, i+1, total_step, loss.item(), (100 * correct / total)))
+
+        # calc epoch loss and append to array        
+        epoch_loss = running_loss / len(train_loader)
+        loss_plt.append(epoch_loss)
+
+        # append training accuracy
+        trn_acc.append((100 * correct / total))
         
         # set checkpoint variables
         checkpoint = {
@@ -357,9 +368,9 @@ if (__name__ == '__main__'):
         tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
 
         # Adding histograms for weights, biases and gradients to TensorBoard
-        #tb.add_histogram('mbconv1 bias', model.mbconv1.bias, epoch)
-        #tb.add_histogram('mbconv1 weight', model.mbconv1.weight, epoch)
-        #tb.add_histogram('mbconv1 weight gradients', model.mbconv1.weight.grad, epoch)
+        tb.add_histogram('mbconv1 bias', model.conv1x1.bias, epoch) 
+        tb.add_histogram('mbconv1 weight', model.conv1x1.weight, epoch)
+        tb.add_histogram('mbconv1 weight gradients', model.conv1x1.weight.grad, epoch)
 
         #model_save_name = 'b1.pt'
         path = "/content/drive/My Drive/b1.pt" 
@@ -384,15 +395,24 @@ if (__name__ == '__main__'):
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
+                running_tst += loss.item() * inputs.size(0)
+
             # print out testing results
             print('Test Accuracy: {:.2f} %, Test Loss: {:.4f}'.format((100 * correct / total), loss.item())) 
+
+            # calculate and append validation loss values
+            epoch_tst = running_tst / len(test_loader)
+            tst_loss.append(epoch_tst)
+
+            # append validation accuracy
+            tst_acc.append((100 * correct / total))
 
             # adding testing accuracy to TensorBoard
             tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
             tb.add_scalar('Testing Loss', loss.item(), epoch)
             scheduler.step(correct / total)
 
-    # Evaluate the model
+   # Evaluate the model
 
     # Confusion matrix code
 
@@ -447,7 +467,7 @@ if (__name__ == '__main__'):
     names = ('gun', 'not gun')
 
     # create plot of size 2x2
-    plt.figure(figsize=(2,2))
+    plt.figure(1)
 
     # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
@@ -455,7 +475,33 @@ if (__name__ == '__main__'):
     # get precision, recall and f1
     print(classification_report(lbllist, predlist))
 
-  
+    # plot training loss
+    plt.figure(2)
+    plt.title('Training Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(loss_plt)
+
+    # plot validation loss
+    plt.figure(3)
+    plt.title('Validation Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(tst_loss)
+
+    # plot training accuracy
+    plt.figure(4)
+    plt.title('Training Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(trn_acc)
+
+    # plot validation accuracy
+    plt.figure(5)
+    plt.title('Validation Epoch loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss values')
+    plt.plot(tst_acc)
 
     # Save the final model checkpoint 
     torch.save(model.state_dict(), 'model.ckpt')
