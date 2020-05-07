@@ -4,7 +4,7 @@
 Below are the steps to be taken when using our code:
 
 1. Choose file to download
-    * We have 4 model files: **B0, B0 without AvgPool, B1, and B1 without DropOut** 
+    * We have 4 model files: **B0 with AveragePool5, B0 with MaxPool, B0 with AveragePool9, and B1 without DropOut** 
 2. Download dataset
     * our dataset can be downloaded from the following link: 
 3. Put project files and dataset folder in the same directory
@@ -82,13 +82,13 @@ We used the scaling factors and other parameters (such as input channels, output
 
 B3 model:
 
-![](graphics/Annotation%202020-05-01%20212145.png)
+![](graphics/B3_Excel.png)
 
 B1 model (with repeats in raw form, and an extra column with all repeats rounded up):
 
-![](graphics/Annotation%202020-05-01%20212050.png)
+![](graphics/B1_Excel.png)
 
-The Excel sheet can be found [here](https://drive.google.com/open?id=1RvCSW4h4D8sd5r17Tcftie6pmOvOUVz1) (Please download before using)
+The Excel sheet can be found [here](https://drive.google.com/open?id=1trUOhY_HJaVsSx8iwTS-0O_F2NpxE4cJ) (Please download before using)
 
 ## Training, Fine-tuning and Optimisation
 
@@ -137,11 +137,11 @@ B1 without DropOut   | synthetic + real images
 
 The results and evaluation for each model is outlined below:
 
-### B0
+### B0 with AveragePool (5x5 kernel)
 
 ### B0 without AvgPool
 
-### B1
+### B0 with AveragePool (9x9 kernel)
 
 ### B1 without DropOut
 
