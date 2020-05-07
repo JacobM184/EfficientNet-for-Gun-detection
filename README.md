@@ -114,15 +114,16 @@ After one round of the above sequence, the algorithm checks if the probabilities
 
 # Database
 
-Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *50,000*. This dataset will be further split into training and validation sets. For testing, we have a few images left over from our dataset preparation that we can use. However, our main plan of action is to do real-time testing through a webcan using printouts of gun images.
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *50,000*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
 
 The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
 
 However, we believe that we need an equal amount of images in each class (i.e. *balanced* dataset) is to mitigate the chance of our model being biased to either class. This is because, while we do not want our model to guess gun every time, we also do not want it to be biased to the *not gun* class either.
 
-Some examples of guns from our dataset are:
-
-***Insert images here***
+Links to databases used (does not include Gu wiki or Google images):
+* [Sai Sasank's dataset](https://www.kaggle.com/issaisasank/guns-object-detection)
+* [Synethetic dataset](https://docs.google.com/forms/d/e/1FAIpQLSffVbLwfuhgSvwxrU66NDTZLfz0RrqcQ-KXJxEN9HIZiqxBeg/viewform?vc=0&c=0&w=1)
+* [Atulya Kumar's dataset](https://www.kaggle.com/atulyakumar98/gundetection)
 
 # Evaluation
 
@@ -130,16 +131,16 @@ Our final four models were limited to using variations of B0 and B1 models as we
 
 Models               | Dataset
 ---------------------|------------------------
-B0                   | synthetic + real images
-B0 without AvgPool   | synthetic + real images
-B1                   | synthetic + real images
+B0 with AveragePool5 | synthetic + real images
+B0 with MaxPool      | synthetic + real images
+B0 with AveragePool9 | synthetic + real images
 B1 without DropOut   | synthetic + real images
 
 The results and evaluation for each model is outlined below:
 
 ### B0 with AveragePool (5x5 kernel)
 
-### B0 without AvgPool
+### B0 with MaxPool
 
 ### B0 with AveragePool (9x9 kernel)
 
