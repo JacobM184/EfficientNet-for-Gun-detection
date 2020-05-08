@@ -24,9 +24,9 @@ if (__name__ == '__main__'):
     os.makedirs(logs_base_dir, exist_ok=True)
 
     # Hyper parameters
-    num_epochs = 200
+    num_epochs = 100
     num_classes = 2
-    batch = 3
+    batch = 10
     learning_rate = 0.01
 
 
@@ -37,24 +37,18 @@ if (__name__ == '__main__'):
     ################################################### Data transformations #########################################################
 
     # Various transformations for training set
-    trainingTransforms = transforms.Compose([transforms.RandomRotation(degrees=25),
-                                             transforms.RandomHorizontalFlip(),
-                                             transforms.ColorJitter(),
-                                             transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=3),
-                                             transforms.Resize((240, 240), interpolation=2),
-                                             transforms.ToTensor(),
-                                             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    trainingTransforms = transforms.Compose([transforms.Resize((240, 240), interpolation=2),
+                                             transforms.ToTensor()
                                              ])
     # Various transformations for validation set
     validTransforms = transforms.Compose([transforms.Resize((240,240), interpolation=2),
-                                          transforms.ToTensor(),
-                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                          transforms.ToTensor()
                                           ])
 
     ################################################### Dataset loading #########################################################
 
     # set directory for data
-    data = "/content/drive/Shared drives/COMPSYS302_Python_Project/data"
+    data = "/data"
 
     # get training data from the 'train' sub-directory and load the data
     train_set = datasets.ImageFolder(data + "/guntrain", transform = trainingTransforms)
@@ -93,8 +87,7 @@ if (__name__ == '__main__'):
             nn.Conv2d(inputCh, outputCh, 1, 1, 0, bias=False),
             nn.BatchNorm2d(outputCh),
             Swish()
-        )
-
+        )    
 
     ################################################### Squeeze and Excitation ####################################################
 
@@ -131,6 +124,7 @@ if (__name__ == '__main__'):
             # calculate channels after expansion
             expandedCh = inputCh * expandRatio
 
+            
             # array to hold 'sub layers' of MBConv layer
             MBconv = []
 
@@ -187,15 +181,16 @@ if (__name__ == '__main__'):
     class ConvNet(nn.Module):
       def __init__(self, num_classes=10):
           super(ConvNet, self).__init__()
-          #res=224x224
+          #res=240x240
           self.layer1 = nn.Sequential(
               nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1),
               nn.BatchNorm2d(32),
               Swish())
           
-          #(inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate)
+          #(inputCh, outputCh, filterSize, stride, expandRatio, SERatio)
           #stride=1
           self.mbconv1= MBConv(32,  16,  3, 1, 1, 0.25)
+          self.mbconv1repeat = MBConv(16,  16,  3, 1, 1, 0.25)
           #stride=2, repeat stride = 1
           self.mbconv2= MBConv(16,  24,  3, 2, 6, 0.25)
           self.mbconv2repeat= MBConv(24,  24,  3, 1, 6, 0.25)
@@ -213,6 +208,7 @@ if (__name__ == '__main__'):
           self.mbconv6repeat= MBConv(192, 192, 5, 1, 6, 0.25)
           #stride=2
           self.mbconv7= MBConv(192, 320, 3, 1, 6, 0.25)
+          self.mbconv7repeat = MBConv(320, 320, 3, 1, 6, 0.25)
           #stride=1
           self.conv1x1 = conv1x1(320,1280)
           #stride=1
@@ -261,7 +257,11 @@ if (__name__ == '__main__'):
     inputs, labels = next(iter(train_loader))
     network = ConvNet()
     grid = torchvision.utils.make_grid(inputs)
+    
+    # adds images from dataset into TensorBoard
     tb.add_image('images', grid, 0)
+    
+    # adds graph of model to TensorBoard
     tb.add_graph(network, inputs)
     tb.close()
     ################################################## Training/Eval Code ###############################################################
@@ -283,7 +283,7 @@ if (__name__ == '__main__'):
     # restart must be set to 1 when required
     restart=0
     if(restart):
-          checkpoint = torch.load('/content/drive/My Drive/b1.pt')
+          checkpoint = torch.load('/content/drive/My Drive/b1_nodrop.pt')
           model.load_state_dict(checkpoint['state_dict'])
           optimizer.load_state_dict(checkpoint['optimizer'])
           epoch = checkpoint['epoch']
@@ -296,14 +296,13 @@ if (__name__ == '__main__'):
     tst_loss = []
     tst_acc = []
     trn_acc = []
-    running_tst = 0
-    running_loss = 0
     model.train()
     for epoch in range(num_epochs):
         # reset variables for accuracy calc
         correct = 0
         total = 0
-
+        running_tst = 0
+        running_loss = 0
         #print epoch num
         print('Epoch: ', (epoch + 1))
         model.train()
@@ -348,13 +347,8 @@ if (__name__ == '__main__'):
         tb.add_scalar('Number Correct', correct, epoch)
         tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
 
-        # Adding histograms for weights, biases and gradients to TensorBoard
-        tb.add_histogram('mbconv1 bias', model.conv1x1.bias, epoch) 
-        tb.add_histogram('mbconv1 weight', model.conv1x1.weight, epoch)
-        tb.add_histogram('mbconv1 weight gradients', model.conv1x1.weight.grad, epoch)
-
-        #model_save_name = 'b1.pt'
-        path = "/content/drive/My Drive/b1.pt" 
+        # save model checkpoint
+        path = "/content/drive/My Drive/b1_nodrop.pt" 
         torch.save(checkpoint, path)
 
         # testing loop
@@ -397,7 +391,7 @@ if (__name__ == '__main__'):
 
     # Confusion matrix code
 
-    # function to plot confusion matrix
+    # function to plot confusion matrix from deeplizard.com
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
         if normalize:
             cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -453,7 +447,7 @@ if (__name__ == '__main__'):
     # plot the confusion matrix
     plot_confusion_matrix(c_mtrx, names)
 
-    # get precision, recall and f1
+    # get precision, recall and f1 using sklearn
     print(classification_report(lbllist, predlist))
 
     # plot training loss
@@ -472,17 +466,17 @@ if (__name__ == '__main__'):
 
     # plot training accuracy
     plt.figure(4)
-    plt.title('Training Epoch loss')
+    plt.title('Training Epoch Accuracy')
     plt.xlabel('Epochs')
-    plt.ylabel('Loss values')
+    plt.ylabel('Accuracy values')
     plt.plot(trn_acc)
 
     # plot validation accuracy
     plt.figure(5)
-    plt.title('Validation Epoch loss')
+    plt.title('Validation Epoch Accuracy')
     plt.xlabel('Epochs')
-    plt.ylabel('Loss values')
+    plt.ylabel('Accuracy values')
     plt.plot(tst_acc)
 
     # Save the final model checkpoint 
-    torch.save(model.state_dict(), 'model.ckpt')
+    torch.save(model.state_dict(), 'model_B1NoDrop.ckpt')
