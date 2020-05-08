@@ -127,7 +127,7 @@ The positions of our sliding window in each input image are as shown below:
 
 After one round of the above sequence, the algorithm checks if the probabilities for guns in any of the boxes are greater than the threshold probability (which is updated to the highest probability found at the end of each sequence). If there is a higher probability, then the section of the image covered by the sliding window for the hisghest probability will become the input to the algorithm and so on. Eventually, the coordinates of the sliding window with the highest probability will become the coordinates of the bounding box.
 
-An example of the boundinb box algorithm's result can be seen below:
+An example of the bounding box algorithm's result can be seen below:
 ![]()
 
 # Database
@@ -173,7 +173,14 @@ The results and evaluation for each model are outlined below:
 ![](graphics/B1_noDrop/Conf_B1.png)
 
 
-From the results above, we can see that the B0 model with AveragePool5 (i.e. average pooling with a 5x5 kernel) performed the best out of all four models. A large part of this can be attributed to the use of Average Pooling rather than Max Pooling, as seen from the results of the B0 with Max Pooling. Surprisingly, the B0 with AveragePool9 actually performed worse than the AveragePool5- contrary to what we were expecting. Perhaps the reasoning is the difference in epochs each was trained for. The AveragePool9 model could not have been trained for as long due to usage limits in Google Colaboratory. The B1 without the use of a Dropout layer performed worst of all, and this goes to show how important the dropout layer was for our model's ability to generalise rather than memorise features in the training phase.
+From the results above, we can see that the B0 with Max Pooling performed quite well. This model is a basic ‘vanilla’ EfficientNet model (i.e. without any extra changes to the model’s architecture). As a result it was expected that it would perform relatively well.
+
+The. we can see that the B0 model with AveragePool5 (i.e. average pooling with a 5x5 kernel) performed the best out of all four models. A large part of this can be attributed to the use of Average Pooling rather than Max Pooling, as seen from the results of the B0 with Max Pooling. The number of epochs for which this model was run may also play a part in the result.
+
+The B0 with AveragePool9, on the other hand, performed worse than the AveragePool5 – contrary to what we were expecting (though still performed well). Perhaps the reason behind this is the difference in epochs each was trained for. The AveragePool9 model could not have been trained for as long due to usage limits in Google Colab. 
+
+The B1 without the use of a Dropout layer performed worst of all, and this goes to show how important the dropout layer was for our model's ability to generalise and learn (as opposed to memorising) features in the training phase.
+
 
 # Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
@@ -184,6 +191,6 @@ Our future aims for this project are as follows:
 * Improving inference times of our models
 * Improve the accuracy of our bounding box system
 * Improving speed of bounding box generation
-* Finding better scaling factors that are better suited to our use case
+* Finding scaling factors that are better suited to our use case
 
 
