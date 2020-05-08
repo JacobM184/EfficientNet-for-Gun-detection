@@ -151,33 +151,35 @@ Our final four models were limited to using variations of B0 and B1 models as we
 
 Models               | Dataset
 ---------------------|------------------------
-B0 with AveragePool5 | synthetic + real images
 B0 with MaxPool      | synthetic + real images
+B0 with AveragePool5 | synthetic + real images
 B0 with AveragePool9 | synthetic + real images
 B1 without DropOut   | synthetic + real images
 
 The results and evaluation for each model are outlined below:
 
 *Note: Concerning the confusion matrix - we only have 99 gun images in the validation set*
+### B0 with MaxPool
+
+
+From the results above, we can see that the B0 with Max Pooling performed quite well. This model is a basic ‘vanilla’ EfficientNet model (i.e. without any extra changes to the model’s architecture). As a result it was expected that it would perform relatively well.
+
 ### B0 with AveragePool (5x5 kernel)
 
-### B0 with MaxPool
+
+We can see that the B0 model with AveragePool5 (i.e. average pooling with a 5x5 kernel) performed the best out of all four models. A large part of this can be attributed to the use of Average Pooling rather than Max Pooling, as seen from the results of the B0 with Max Pooling. The number of epochs for which this model was run may also play a part in the result.
 
 ### B0 with AveragePool (9x9 kernel)
 
 ![](graphics/B0_KERNEL9/Classification_B0.png) 
 ![](graphics/B0_KERNEL9/Conf_B0.png)
 
+The B0 with AveragePool9, on the other hand, performed worse than the AveragePool5 – contrary to what we were expecting (though still performed well). Perhaps the reason behind this is the difference in epochs each was trained for. The AveragePool9 model could not have been trained for as long due to usage limits in Google Colab. 
+
 ### B1 without DropOut
+
 ![](graphics/B1_noDrop/Classification_B1.png)
 ![](graphics/B1_noDrop/Conf_B1.png)
-
-
-From the results above, we can see that the B0 with Max Pooling performed quite well. This model is a basic ‘vanilla’ EfficientNet model (i.e. without any extra changes to the model’s architecture). As a result it was expected that it would perform relatively well.
-
-The. we can see that the B0 model with AveragePool5 (i.e. average pooling with a 5x5 kernel) performed the best out of all four models. A large part of this can be attributed to the use of Average Pooling rather than Max Pooling, as seen from the results of the B0 with Max Pooling. The number of epochs for which this model was run may also play a part in the result.
-
-The B0 with AveragePool9, on the other hand, performed worse than the AveragePool5 – contrary to what we were expecting (though still performed well). Perhaps the reason behind this is the difference in epochs each was trained for. The AveragePool9 model could not have been trained for as long due to usage limits in Google Colab. 
 
 The B1 without the use of a Dropout layer performed worst of all, and this goes to show how important the dropout layer was for our model's ability to generalise and learn (as opposed to memorising) features in the training phase.
 
