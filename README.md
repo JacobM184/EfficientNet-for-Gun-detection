@@ -158,6 +158,7 @@ B1 without DropOut   | synthetic + real images
 
 The results and evaluation for each model are outlined below:
 
+*Note: Concerning the confusion matrix - we only have 99 gun images in the validation set*
 ### B0 with AveragePool (5x5 kernel)
 
 ### B0 with MaxPool
@@ -168,6 +169,8 @@ The results and evaluation for each model are outlined below:
 ![](graphics/B0_KERNEL9/Conf_B0.png)
 
 ### B1 without DropOut
+![](graphics/B1_noDrop/Classification_B1.png)
+![](graphics/B1_noDrop/Conf_B1.png)
 
 
 From the results above, we can see that the B0 model with AveragePool5 (i.e. average pooling with a 5x5 kernel) performed the best out of all four models. A large part of this can be attributed to the use of Average Pooling rather than Max Pooling, as seen from the results of the B0 with Max Pooling. Surprisingly, the B0 with AveragePool9 actually performed worse than the AveragePool5- contrary to what we were expecting. Perhaps the reasoning is the difference in epochs each was trained for. The AveragePool9 model could not have been trained for as long due to usage limits in Google Colaboratory. The B1 without the use of a Dropout layer performed worst of all, and this goes to show how important the dropout layer was for our model's ability to generalise rather than memorise features in the training phase.
