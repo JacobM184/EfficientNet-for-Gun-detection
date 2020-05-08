@@ -1,5 +1,11 @@
 # CS302-Python-2020-Group32
-
+# Table of contents
+- [Instructions](#instructions)
+- [Gun detection system](#gun-detection-system)
+- [Model](#model)
+- [Database](#database)
+- [Evaluation](#evaluation)
+- [Conclusion and Future Work](#conclusion-and-future-work)
 # Instructions
 Below are the steps to be taken when using our code:
 
@@ -146,7 +152,7 @@ The results and evaluation for each model is outlined below:
 
 ### B1 without DropOut
 
-# Conclusion & Future Work
+# Conclusion and Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
 
 Our future aims for this project are as follows:
