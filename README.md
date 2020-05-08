@@ -6,6 +6,7 @@
 - [Database](#database)
 - [Evaluation](#evaluation)
 - [Conclusion and Future Work](#conclusion-and-future-work)
+
 # Instructions
 Below are the steps to be taken when using our code:
 
@@ -18,6 +19,14 @@ Below are the steps to be taken when using our code:
 4. Navigate to directory in console and run desired file
 
 Note: Please ensure that you have a CUDA enabled GPU for training. Also ensure that you have TensorBoard installed, as our code contains TensorBoard code for some metrics.
+
+Our dataset can be downloaded [here]()
+
+Please find the links to our scripts below:
+* [B0 with AveragePool5]()
+* [B0 with MaxPool]()
+* [B0 with AveragePool9](/B0_AvgPool9.py)
+* [B1 without DropOut](/B1_without_DropOut.py)
 
 # Gun detection system
 
@@ -81,7 +90,7 @@ The output of the above layers is then multiplied to the input tensor.
 #### Dropout layer
 The Dropout layer in our implementation works by randomly choosing nodes to deactivate at the end of an MBConv block (does not apply for all the layers, only the ones that are repeated). We chose to add this functionality to our MBConv layers because it helps mitigate the risk of the model 'memorising' data, and allows for building new and better connections in the network.
 
-In our testing we attempted two methods of implementing a Dropout layer: we tried using the built-in Pytoch Dropout layer as well as making our own function to randomly choose nodes to drop out. Interestingly, our tests showed that our function outperformed the built-in layer when used in our model. As a result of this testing, we decided upon continuing the use of the function rather than the PyTorch layer for our model.
+In our testing we attempted two methods of implementing a Dropout layer: we tried using the built-in Pytorch Dropout layer as well as making our own function to randomly choose nodes to drop out. Interestingly, our tests showed that our function outperformed the built-in layer when used in our model. As a result of this testing, we decided upon continuing the use of the function rather than the PyTorch layer for our model.
 
 ## Scaling
 We used the scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to quickly test different versions of EfficientNet, as the parameters to be changed in each scaled model could be easily found. We were also able to make quick changes to the scaling calculations to test out results from different scaling factors and/or rounding techniques. Examples from our Excel sheet are shown below:
@@ -120,7 +129,7 @@ After one round of the above sequence, the algorithm checks if the probabilities
 
 # Database
 
-Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *50,000*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *12,250*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images (including images from Atulya Kumar's dataset) that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
 
 The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
 
@@ -130,6 +139,8 @@ Links to databases used (does not include Gu wiki or Google images):
 * [Sai Sasank's dataset](https://www.kaggle.com/issaisasank/guns-object-detection)
 * [Synethetic dataset](https://docs.google.com/forms/d/e/1FAIpQLSffVbLwfuhgSvwxrU66NDTZLfz0RrqcQ-KXJxEN9HIZiqxBeg/viewform?vc=0&c=0&w=1)
 * [Atulya Kumar's dataset](https://www.kaggle.com/atulyakumar98/gundetection)
+* [COCO](http://cocodataset.org/#download)
+* [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html)
 
 # Evaluation
 
@@ -142,7 +153,7 @@ B0 with MaxPool      | synthetic + real images
 B0 with AveragePool9 | synthetic + real images
 B1 without DropOut   | synthetic + real images
 
-The results and evaluation for each model is outlined below:
+The results and evaluation for each model are outlined below:
 
 ### B0 with AveragePool (5x5 kernel)
 
@@ -150,9 +161,12 @@ The results and evaluation for each model is outlined below:
 
 ### B0 with AveragePool (9x9 kernel)
 
+![](graphics/B0_KERNEL9/Classification_B0.png) 
+![](graphics/B0_KERNEL9/Conf_B0.png)
+
 ### B1 without DropOut
 
-# Conclusion and Future Work
+# Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
 
 Our future aims for this project are as follows:
