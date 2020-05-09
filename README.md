@@ -9,10 +9,11 @@
 
 # Instructions
 Below are the steps for inferencing our model:
-
+BB.py = bounding box + prediction %
+INF.py = no bounding box, only prediction %
 1. Download project file(s)
-    
-    * inference.py
+    * BB.py
+    * INF.py
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
 3. Put project files and dataset folder in the same directory
