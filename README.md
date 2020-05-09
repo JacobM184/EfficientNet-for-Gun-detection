@@ -10,7 +10,8 @@
 # Instructions
 Below are the steps for inferencing our model:
 
-1. Download project file(s) inference.py 
+1. Download project file(s)
+    *inference.py 
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
 3. Put project files and dataset folder in the same directory
