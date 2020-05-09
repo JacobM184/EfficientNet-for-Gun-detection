@@ -9,8 +9,11 @@
 
 # Instructions
 Below are the steps for inferencing our model:
+
 BB.py = bounding box + prediction %
+
 INF.py = no bounding box, only prediction %
+
 1. Download project file(s)
     * BB.py
     * INF.py
