@@ -17,11 +17,15 @@ Below are the steps to be taken when using our code:
     * our dataset can be downloaded from the following link: [dataset]()
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
-4. Navigate to directory in console and run desired file
+4. Navigate to install directory in console:
+[drive letter]:  
+cd [directory]
+5. Enter into console:
+python infernce.py
 
-Note: Please ensure that you have a CUDA enabled GPU for training. Also ensure that you have TensorBoard installed, as our code uses TensorBoard for extra evaluation functionality.
-
-Please find the links to our scripts below:
+To add your own test gun images, place them into directory/ad/gunval/gun
+Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever(hundereds of hours).
+Please find the links to our other scripts below:
 * [B0 with AveragePool5]()
 * [B0 with MaxPool]()
 * [B0 with AveragePool9](/B0_AvgPool9.py)
