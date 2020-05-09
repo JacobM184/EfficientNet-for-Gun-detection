@@ -31,7 +31,8 @@ Please find the links to our training scripts below:
 * [B0 with MaxPool]()
 * [B0 with AveragePool9](/B0_AvgPool9.py)
 * [B1 without DropOut](/B1_without_DropOut.py)
-    Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever(hundereds of hours).
+   
+   Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever(hundereds of hours).
 # Gun detection system
 
 Mass shootings are an unfortunate reality in today's world. Stopping mass shootings have proven to be extremely difficult without drastic and extreme measures. We aim to develop a deep-learning-based solution that will help reduce casualties from shootings through early detection and reporting. 
