@@ -12,6 +12,7 @@ Below are the steps to be taken when using our code:
 
 1. Download project file(s) 
   inference.py
+  
   *b0.py      //only for training, not actually required to run inference
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
