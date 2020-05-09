@@ -18,8 +18,8 @@ Below are the steps for inferencing our model:
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
 4. Navigate to install directory in console:
-  [drive letter]:  
-  cd [directory]
+    * [drive letter]:  
+    * cd [directory]
 5. Enter into console:
 python infernce.py
 
