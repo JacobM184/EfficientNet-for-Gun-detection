@@ -145,6 +145,7 @@ After one round of the above sequence, the algorithm checks if the probabilities
 Although our bounding box is not as accurate as dedicated single shot detectors like yolo, or sliding window approaches which use many sliding windows, our method only requires less computation per image- as our goal is real time output, fast inference time is essential.
 In our testing speed is quite slow, but is likely due to model/image loading pipline contraints, as our model only takes 20-30ms to inference one image, so most of the delay is likely pytorch loading the model and image. 
 An example of the bounding box algorithm's result can be seen below:
+
 ![](graphics/bound2.PNG)
 
 # Database
