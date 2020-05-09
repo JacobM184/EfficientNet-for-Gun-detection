@@ -25,8 +25,7 @@ INF.py = no bounding box, only prediction %
     * [drive letter]:  
     * cd [directory]
 5. Enter into console:
-    * python infernce.py
-
+    * python INF.py / BB.py
 To add your own test gun images, place them into [directory/ad/gunval/gun]
 
 
