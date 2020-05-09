@@ -142,7 +142,7 @@ The positions of our sliding window in each input image are as shown below:
 
 After one round of the above sequence, the algorithm checks if the probabilities for guns in any of the boxes are greater than the threshold probability (which is updated to the highest probability found at the end of each sequence). If there is a higher probability, then the section of the image covered by the sliding window for the highest probability will become the input to the algorithm and so on. Eventually, the coordinates of the sliding window with the highest probability will become the coordinates of the bounding box.
 
-Although our bounding box is not as accurate as dedicated single shot detectors like yolo, or sliding window approaches which use many sliding windows, our method only requires less computation per image- as our goal is real time output fast inference time is essential.
+Although our bounding box is not as accurate as dedicated single shot detectors like yolo, or sliding window approaches which use many sliding windows, our method only requires less computation per image- as our goal is real time output, fast inference time is essential.
 An example of the bounding box algorithm's result can be seen below:
 ![](graphics/bound2.PNG)
 
