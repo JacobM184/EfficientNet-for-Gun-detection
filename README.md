@@ -21,7 +21,7 @@ Below are the steps for inferencing our model:
     * [drive letter]:  
     * cd [directory]
 5. Enter into console:
-python infernce.py
+    * python infernce.py
 
 To add your own test gun images, place them into directory/ad/gunval/gun
 
