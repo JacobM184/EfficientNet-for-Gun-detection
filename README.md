@@ -12,7 +12,7 @@ Below are the steps to be taken when using our code:
 
 1. Download project file(s) 
   inference.py
-  
+   
  
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
@@ -26,7 +26,7 @@ python infernce.py
 
 To add your own test gun images, place them into directory/ad/gunval/gun
 Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever(hundereds of hours).
-Please find the links to our other scripts below:
+Please find the links to our training scripts below:
 * [B0 with AveragePool5]()
 * [B0 with MaxPool]()
 * [B0 with AveragePool9](/B0_AvgPool9.py)
