@@ -49,7 +49,7 @@ Our planned system will detect guns in a given image/frame and attempt to create
 # Model
 ## Overview
 
-![](graphics/bound2.PNG)
+
 
 We plan to use the EfficientNet architecture to detect guns in real-time. EfficientNet is an architecture that takes advantage of compound scaling (i.e. scaling in Depth, Width and Resolution dimensions) to achieve state-of-the-art accuracy with lower FLOPS and less parameters than models that scale a single dimension. A key point in the original development of this architecture was that the efficiency and accuracy of the model when scaled depends on how much you scale each dimension w.r.t each other. Therefore, the scaling factors (α, β and γ) can be found for the best results when using EfficientNet. Our scaling factors were taken from those used by other implementations. Another key feature of this model that was particularly attractive to us was the low inference times - an important factor to consider when making a gun detector.
 
@@ -130,7 +130,7 @@ In our testing with Nesterov momentum, we found that a momentum of 0.5 works wel
 
 In terms of epoch testing, we have trained our models for varying numbers of epochs ranging from 40 to 224. We found that while our training accuracy percentage easily manages to reach the high 90s within around 40-80 epochs, we needed to train for more epochs in order for our validation accuracy to be similarly as good.
 
-We also found that the use of PyTorch's *ReduceLROnPlateau* learning rate scheduler was useful when our model plateaus at a particular validation metric for 15 epochs.
+We also found that the use of PyTorch's *ReduceLROnPlateau* learning rate scheduler was useful when our model validation accuracy does not increase for 15 epochs. The reduction in learning rate helps our model finely tune its parameters.
 
 ## Extra features
 In addition to our EfficientNet model, we decided to create a bounding box algorithm to daw boxes around any guns that we detect. This algorithm works alongside our model, but is not actually part of the model itself. Our bounding box algorithm works by way of taking sections from an image contianing a detected gun and using a 'sliding window' to check for where in that section a gun may be.
@@ -143,7 +143,7 @@ The positions of our sliding window in each input image are as shown below:
 After one round of the above sequence, the algorithm checks if the probabilities for guns in any of the boxes are greater than the threshold probability (which is updated to the highest probability found at the end of each sequence). If there is a higher probability, then the section of the image covered by the sliding window for the hisghest probability will become the input to the algorithm and so on. Eventually, the coordinates of the sliding window with the highest probability will become the coordinates of the bounding box.
 
 An example of the bounding box algorithm's result can be seen below:
-![]()
+![](graphics/bound2.PNG)
 
 # Database
 
