@@ -33,7 +33,7 @@ To add your own test gun images, place them into [directory/ad/gunval/gun]
 
 Please find the links to our training scripts below:
 * [B0 with AveragePool5]()
-* [B0 with MaxPool]()
+* [B0 with Globalpool]()
 * [B0 with AveragePool9](/B0_AvgPool9.py)
 * [B1 without DropOut](/B1_without_DropOut.py)
    
