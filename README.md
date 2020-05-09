@@ -23,7 +23,7 @@ Below are the steps for inferencing our model:
 5. Enter into console:
     * python infernce.py
 
-To add your own test gun images, place them into directory/ad/gunval/gun
+To add your own test gun images, place them into [directory/ad/gunval/gun]
 
 
 Please find the links to our training scripts below:
