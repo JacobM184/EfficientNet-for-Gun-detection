@@ -10,8 +10,9 @@
 # Instructions
 Below are the steps to be taken when using our code:
 
-1. Choose project file(s) to download
-    * We have 4 model files: **B0 with AveragePool5, B0 with MaxPool, B0 with AveragePool9, and B1 without DropOut** 
+1. Download project file(s) 
+  inference.py
+ *b0.py      //only for training, not actually required to run inference
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
 3. Put project files and dataset folder in the same directory
