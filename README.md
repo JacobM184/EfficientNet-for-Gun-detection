@@ -132,7 +132,7 @@ An example of the bounding box algorithm's result can be seen below:
 
 # Database
 
-Our dataset is a custom dataset containing images from Google Images, Gun Wiki, Sai Sasank's dataset, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *12,250*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images (including images from Atulya Kumar and Atul Anand's datasets) that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, Sai Sasank's dataset, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *12,250*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images (including images from Atulya Kumar and Prasun Roy's datasets) that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
 
 The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
 
@@ -142,7 +142,7 @@ Links to databases used (does not include Gu wiki or Google images):
 * [Sai Sasank's dataset](https://www.kaggle.com/issaisasank/guns-object-detection)
 * [Synethetic dataset](https://docs.google.com/forms/d/e/1FAIpQLSffVbLwfuhgSvwxrU66NDTZLfz0RrqcQ-KXJxEN9HIZiqxBeg/viewform?vc=0&c=0&w=1)
 * [Atulya Kumar's dataset](https://www.kaggle.com/atulyakumar98/gundetection)
-* [Atul Anand's dataset](https://www.kaggle.com/atulanandjha/lfwpeople)
+* [Prasun Roy's dataset](https://www.kaggle.com/prasunroy/natural-images)
 * [COCO](http://cocodataset.org/#download)
 * [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html)
 
