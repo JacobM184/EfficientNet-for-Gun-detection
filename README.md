@@ -11,7 +11,7 @@
 Below are the steps for inferencing our model:
 
 1. Download project file(s) 
-  inference.py
+inference.py
    
  
 2. Download dataset
