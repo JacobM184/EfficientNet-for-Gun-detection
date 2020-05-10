@@ -67,8 +67,11 @@ When developing our model, we had implement the following key features
   - Squeeze and Excitation
   - Dropout layer
 
-### Data transforms and Data loaders
+### Data transforms/augmenations and Data loaders
 These features of our model are self-explanatory. They define the transformations we will do to our data, and the directory from which our data is to be downloaded. The code then downloads the images and labels of each class and splits them into training and validation data.
+
+The data augmentations help expose our model to a greater variety of guns (rotated/scaled/perspective), benifiting the generalisation ability of our model. Here is an example of our training augmentations. 
+![](graphics/dis.png)
 
 ### Swish activation
 Swish activation is defined as **σ(x) × x**. That is, the sigmoid of x, multiplied by x. The Swish activation function, while it looks similar to the ReLU function, is smooth (i.e. it does not abruptly change its value like ReLU does at x = 0). A graph of this function can be seen below:
