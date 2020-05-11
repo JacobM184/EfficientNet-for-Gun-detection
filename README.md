@@ -25,7 +25,6 @@ Below are the steps for inferencing our model:
     * our dataset can be downloaded from the following link: [data](https://drive.google.com/open?id=1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN)
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
-    * ensure folder 'data' and BB.py, Test.py and b0_global.pt are in the same directory/folder
 4. Navigate to install directory in console:
     * [drive letter]:  
     * cd [directory]
@@ -55,9 +54,6 @@ Our planned system will detect guns in a given image/frame and attempt to create
 
 # Model
 ## Overview
-
-
-
 We plan to use the EfficientNet architecture to detect guns in real-time. EfficientNet is an architecture that takes advantage of compound scaling (i.e. scaling in Depth, Width and Resolution dimensions) to achieve state-of-the-art accuracy with lower FLOPS and less parameters than models that scale a single dimension. A key point in the original development of this architecture was that the efficiency and accuracy of the model when scaled depends on how much you scale each dimension w.r.t each other. Therefore, the scaling factors (α, β and γ) can be found for the best results when using EfficientNet. Our scaling factors were taken from those used by other implementations. Another key feature of this model that was particularly attractive to us was the low inference times - an important factor to consider when making a gun detector.
 
 Below is a representation of our basal model (EfficientNet B0) without any scaling from the original documentation:
@@ -178,10 +174,12 @@ Links to databases used (does not include Gu wiki or Google images):
 
 Due to hardware constraints and Google COLAB usage limits, our models were only trained for 100 epochs in general. Though, it may be noted that some models were trained for further epochs for the sake of understanding the effect of more epochs on a given model.
 
-Here is an example of Training Accuracy vs Epochs from our B0 with AveragePool9:
+### Here is an example of Training Accuracy vs Epochs from our B0 with AveragePool9:
+
 ![](graphics/B0_KERNEL9/trnacc_B0.png)
 
-Here is an example of Training Loss vs Epochs from our B0 with AveragePool9:
+### Here is an example of Training Loss vs Epochs from our B0 with AveragePool9:
+
 ![](graphics/B0_KERNEL9/trnloss_B0.png)
 
 We can clearly see from the above graphs that there is a logarithmic relationship between epoch and accuracy/loss.
@@ -200,28 +198,28 @@ B1 without DropOut                     | synthetic + real images
 The results and evaluation for each model are outlined below:
 
 *Note: While the screenshots may say 420 images, there were only 412 images. This was a typo on our end*
-### B0 with AveragePool (5x5 kernel)
+### B0 with AveragePool (5x5 kernel):
 
 ![](graphics/B0_Avg5/testClassifB0.png) 
 ![](graphics/B0_Avg5/testConfB0.png)
 
 From the precision results for the B0 with Global Pooling model, we can see that we have a weighted average precision of 0.66. While this is not an inherently bad result, it is unsatisfactory for the purpose of our solution as it means that 0.34 of our positive predictions (for both classes) were false positives. The recall results, similar to the precision results, are good, but not good enough for our purposes. This is because having a weighted average recall of 0.65 means that 0.35 of labelled positives (for both classes) were predicted as false negatives. The F1-score is 0.65 is lower than what we would like to have for our solution. It is also relevant to note that testing resulted in an overall accuracy of 81.67% from 412 images with this network. However, considering that our test set is not perfectly balanced, F1-score may be a better metric to gauge accuracy. This result was not initially expected as this particular model achieved 99.5% validation accuracy in training. However, there are a decline in accuracy when it came to testing because the testing set has images that the model has never encountered before (e.g. cars, motorcycles, etc.), and that have similar features to those the model is trained to detect.
 
-### B0 with Global Pooling and Adversarial training
+### B0 with Global Pooling and Adversarial training:
 
 ![](graphics/B0_Global_Adv/testClassifB0.png) 
 ![](graphics/B0_Global_Adv/testConfB0.png)
 
 From the precision results above we can see a good improvement with the weighted average precision value of 0.76. This means that only a weighted average of 0.24 of positive predictions (for both classes) were false positives. The recall values also seem to be generally better than the previous model, with the weighted average value of 0.74. This means that 0.26 of labelled positives (for both classes) were predicted as false negatives. The F1-score has also improved to 0.74. It is also relevant to note that testing resulted in an overall accuracy of 89.76% from 412 images with this network. However, considering that our test set is not perfectly balanced, F1-score may be a better metric to gauge accuracy. This model was trained using a special dataset to reduce the adverse effect cars, motorcycles and other test set images have on the other models. This dataset incorporated a slightly more diverse set of images in the 'not gun' class to better narrow down the features that the model should be detecting. As we can see from the results, this model has managed to perform better on the test set. This gives us evidence to support the conclusion that having a more diverse dataset can improve our accuracy.
 
-### B0 with AveragePool (9x9 kernel)
+### B0 with AveragePool (9x9 kernel):
 
 ![](graphics/B0_KERNEL9/testClassif_B0.png) 
 ![](graphics/B0_KERNEL9/testConf_B0.png)
 
 From the above precision metrics, we can see that this model managed a weighted average precision of 0.82 which is the best precision result out of the four models. This means that only 0.18 of the predicted positives (for both classes) were false positives. The recall metric is also better than the other models with a weighted average recall of 0.79. This means that 0.21 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the highest at 0.79. It is also relevant to note that testing resulted in an overall accuracy of 84.05% from 412 images with this network. However, considering that our test set is not perfectly balanced, F1-score may be a better metric to gauge accuracy. As originally expected, this model has performed better than the Average Pool 5x5, although the ending validation accuracy for this model was 4% lower than that of the latter (due to limitations in number of epochs trained for).
 
-### B1 without DropOut
+### B1 without DropOut:
 
 ![](graphics/B1_noDrop/testClassifB1.png)
 ![](graphics/B1_noDrop/testConfB1.png)
@@ -231,12 +229,14 @@ From the above precision metrics, we can see that this model has a weighted aver
 # Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
 
-Our future aims for this project are as follows:
+Our future aims for this project include the following:
 * Use larger models ranging from B3 to B7
-* Use our full dataset; Maybe collate more images for use in this dataset
+* Collate more images to increase the size of our dataset
+* Diversify the images in our datasets (including more images of people holding guns, cars, motorcycles, trucks etc.)
 * Improving inference times of our models
 * Improve the accuracy of our bounding box system
 * Improving speed of bounding box generation
 * Finding scaling factors that are better suited to our use case
+* Run more tests with different versions of pooling to find the optimum combination of pooling parameters
 
 
