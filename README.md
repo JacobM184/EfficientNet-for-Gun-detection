@@ -18,9 +18,13 @@ B0_global.pt = Pretrained global pooling model
 Below are the steps for inferencing our model:
 
 1. Download project file(s)
-    * BB.py
-    * Test.py
-    * B0_global.pt
+    * [B0 with AveragePool5](/b0_avgpool_5.py) - training script
+    * [B0 with Global Pool](/B0_global.py) - training script
+    * [B0 with AveragePool9](/B0_AvgPool9.py) - training script
+    * [B1 without DropOut](/B1_without_DropOut.py) - training script
+    * [Test Script 1](/BB.py) - tests  bounding box + prediction % (1 image)
+    * [Test Script 2](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
+    * [Checkpoint file](/b0_global.pt) - for B0 with Global Pooling
 2. Download dataset
     * our dataset can be downloaded from the following link: [data](https://drive.google.com/drive/folders/1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN?usp=sharing)
 3. Put project files and dataset folder in the same directory
@@ -44,7 +48,7 @@ Please find the links to our training scripts below:
 
 Please find links to testing scripts below:
 * [Test Script 1](/BB.py) - tests  bounding box + prediction % (1 image)
-* [B0 with Globalpool](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
+* [Test Script 2](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
 
 Please find the link to the checkpoint file:
    
