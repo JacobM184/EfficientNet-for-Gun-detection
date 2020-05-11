@@ -8,13 +8,13 @@
 - [Conclusion & Future Work](#conclusion--future-work)
 
 # Instructions
-Below are the steps for inferencing our model:
-
 BB.py = bounding box + prediction % [1 image]
 
 Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
 
 B0_global.pt = Pretrained global pooling model
+
+Below are the steps for inferencing our model:
 
 1. Download project file(s)
     * BB.py
