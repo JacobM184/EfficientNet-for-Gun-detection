@@ -294,4 +294,4 @@ if (__name__ == '__main__'):
         }
 
 
-        torch.save(checkpoint, 'b0-gun-globalgpool.pt')
+        torch.save(checkpoint, 'B0_global.pt')
