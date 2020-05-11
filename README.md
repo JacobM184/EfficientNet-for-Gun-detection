@@ -180,7 +180,7 @@ B1 without DropOut                     | synthetic + real images
 
 The results and evaluation for each model are outlined below:
 
-*Note: Concerning the confusion matrix - we only have 99 gun images in the validation set*
+*Note: While the screenshots may say 420 images, there were only 412 images. This was a typo on our end*
 ### B0 with Global Pooling
 
 ![](graphics/B0_Global/testClassifB0.png) 
