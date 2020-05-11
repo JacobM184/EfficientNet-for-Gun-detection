@@ -186,25 +186,25 @@ The results and evaluation for each model are outlined below:
 ![](graphics/B0_Global/testClassifB0.png) 
 ![](graphics/B0_Global/testConfB0.png)
 
-
+From the precision results for the B0 with Global Pooling model, we can see that we have a weighted average precision of 0.64. While this is not an inherently bad result, it is unsatisfactory for the purpose of our solution as it means that 0.36 of our positive predictions (for both classes) were false positives. The recall results, similar to the precision results, are good, but not good enough for our purposes. This is because having a weighted average recall of 0.64 means that 0.36 of labelled positives (for both classes) were predicted as false negatives. The F1-score is 0.64 which is lower than what we would like to have for our solution. It is also relevant to note that testing resulted in an overall accuracy of 82.38% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
 ### B0 with Global Pooling and Adversarial training
 
 ![](graphics/B0_Global_Adv/testClassifB0.png) 
 ![](graphics/B0_Global_Adv/testConfB0.png)
 
-
+From the precision results above we can see a good improvement with the weighted average precision value of 0.76. This means that only an weighted average of 0.24 of positive predictions (for both classes) were false positives. The recall values also seem to be generally better than the previous model, with the weighted average value of 0.74. This means that 0.26 of labelled positives (for both classes) were predicted as false negatives. The F1-score has also improved to 0.74. It is also relevant to note that testing resulted in an overall accuracy of 89.76% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
 ### B0 with AveragePool (9x9 kernel)
 
 ![](graphics/B0_KERNEL9/testClassif_B0.png) 
 ![](graphics/B0_KERNEL9/testConf_B0.png)
 
-
+From the above precision metrics, we can see that this model managed a weighted average precision of 0.82 which is the best precision result out of the four models. This means that only 0.18 of the predicted positives (for both classes) were false positives. The recall metric is also better than the other models with a weighted average recall of 0.79. This means that 0.21 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the highest at 0.79. It is also relevant to note that testing resulted in an overall accuracy of 84.05% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
 ### B1 without DropOut
 
 ![](graphics/B1_noDrop/testClassifB1.png)
 ![](graphics/B1_noDrop/testConfB1.png)
 
-
+From the above precision metrics, we can see that this model has a weighted average precision of 0.62 which is the worst precision result out of the four models. This model has a very unsatisfactory precision, as this means that 0.38 of the predicted positives (for both classes) were false positives. The recall metric is also worse than the other models with a weighted average recall of 0.61. This means that 0.39 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the lowest at 0.61. It is also relevant to note that testing resulted in an overall accuracy of 67.62% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy. The somewhat poor performance of this model was expected as we removed the Dropout layer to see the effect that would have on model performance.
 
 # Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
