@@ -37,7 +37,7 @@ Please find the links to our training scripts below:
 * [B0 with AveragePool9](/B0_AvgPool9.py)
 * [B1 without DropOut](/B1_without_DropOut.py)
    
-   Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever(hundereds of hours).
+   Note: Please ensure that you have a CUDA enabled GPU for training or it will take forever (hundreds of hours).
 # Gun detection system
 
 Mass shootings are an unfortunate reality in today's world. Stopping mass shootings have proven to be extremely difficult without drastic and extreme measures. We aim to develop a deep-learning-based solution that will help reduce casualties from shootings through early detection and reporting. 
@@ -58,7 +58,7 @@ Below is a representation of our basal model (EfficientNet B0) without any scali
 ![](graphics/EfficientNetArch.png)
 
 ## Key features
-When developing our model, we had implement the following key features
+When developing our model, we had to implement the following key features
 * Data transforms
 * Data loaders
 * Swish activation
@@ -67,10 +67,10 @@ When developing our model, we had implement the following key features
   - Squeeze and Excitation
   - Dropout layer
 
-### Data transforms/augmenations and Data loaders
+### Data transforms/augmentations and Data loaders
 These features of our model are self-explanatory. They define the transformations we will do to our data, and the directory from which our data is to be downloaded. The code then downloads the images and labels of each class and splits them into training and validation data.
 
-The data augmentations help expose our model to a greater variety of guns (rotated/scaled/perspective), benifiting the generalisation ability of our model. Here is an example of our training augmentations. 
+The data augmentations help expose our model to a greater variety of guns (rotated/scaled/perspective), benefiting the generalisation ability of our model. Here is an example of our training augmentations. 
 ![](graphics/dis.PNG)
 
 ### Swish activation
@@ -91,7 +91,7 @@ The MBConv layer is the largest component in our EfficientNet implementation. Ba
 #### Inverted Residuals
 Inverted residuals firstly have a skip connection, or residual, allowing information and gradients to pass through the block. This allows for deeper models by easing the shrinking of gradients as the model becomes deeper, and also reduces loss of finer information in the earlier layers of the model. The Inverted residual uses another important idea, the 1x1 convolution (pointwise convolution). This convolution expands/decreases the number of feature maps, rather than the resolution. This allows the inverted residual block to increase the feature mapping into a higher dimension at the start of the block. This is so that non-linear activations can be applied within a expanded higher dimension of feature mappings. 
 
-Non-linear activations are essential for neural networks, but can lose information, especially in lower dimensions. The non-linear activation being applied in a higher number of dimensions mitigates the information loss effect. Additionally, depthwise separable convolutions are applied, where convolutions are applied on indiviudal feature map layers. Afterwards, the 1x1 convolution is re-applied to shrink the number of feature mappings, and at the same time achieve spatial feature mapping. The linear output is then added to the skip connection. The use of a depthwise seperable convolution increases efficiency by an order of magnitude, by reducing the number of parameters convolved. 
+Non-linear activations are essential for neural networks, but can lose information, especially in lower dimensions. The non-linear activation being applied in a higher number of dimensions mitigates the information loss effect. Additionally, depthwise separable convolutions are applied, where convolutions are applied on individual feature map layers. Afterwards, the 1x1 convolution is re-applied to shrink the number of feature mappings, and at the same time achieve spatial feature mapping. The linear output is then added to the skip connection. The use of a depthwise separable convolution increases efficiency by an order of magnitude, by reducing the number of parameters convolved. 
 
 #### Squeeze and Excite
 Squeeze and Excite blocks work by *squeezing* an input using Global Average Pooling to the shape  (1, 1, *feature maps*) and multiplying this back to the input. Multiplying the (1, 1, *feature maps*) tensor back to the input increases the weighting of feature maps that have more features, thus '*exciting*' the weightings.
@@ -104,9 +104,9 @@ Our implementation of Squeeze and Excite in PyTorch uses the following layers:
 The output of the above layers is then multiplied to the input tensor.
 
 #### Dropout layer
-The Dropout layer in our implementation works by randomly choosing nodes to deactivate at the end of an MBConv block (does not apply for all the layers, only the ones that are repeated). We chose to add this functionality to our MBConv layers because it helps mitigate the risk of the model 'memorising' data, and allows for building new and better connections in the network.
+The Dropout layer in our implementation works by randomly choosing nodes to deactivate at the end of an MBConv block (does not apply for all the layers, only the ones that are repeated). We chose to add this functionality to our MBConv layers because it helps mitigate the risk of the model 'memorising' data and allows for building new and better connections in the network.
 
-In our testing we attempted two methods of implementing a Dropout layer: we tried using the built-in Pytorch Dropout layer as well as making our own function to randomly choose nodes to drop out. Interestingly, our tests showed that our function outperformed the built-in layer when used in our model. As a result of this testing, we decided upon continuing the use of the function rather than the PyTorch layer for our model.
+In our testing we attempted two methods of implementing a Dropout layer: we tried using the built-in PyTorch Dropout layer as well as making our own function to randomly choose nodes to drop out. Interestingly, our tests showed that our function outperformed the built-in layer when used in our model. As a result of this testing, we decided upon continuing the use of the function rather than the PyTorch layer for our model.
 
 ## Scaling
 We used some common scaling factors and other parameters (such as input channels, output channels, and repeats to name a few) to create an Excel sheet that will allow us to calculate the specific parameter to be changed for each model. This allowed us to quickly test different versions of EfficientNet, as the parameters to be changed in each scaled model could be easily found. We were also able to make quick changes to the scaling calculations to test out results from different scaling factors and/or rounding techniques. Examples from our Excel sheet are shown below:
@@ -125,7 +125,7 @@ The Excel sheet can be found [here](https://drive.google.com/open?id=1trUOhY_HJa
 
 Over the course of this project we have trained various versions of EfficientNet with different optimisers, learning-rate schedulers, different datasets, and differing numbers of epochs.
 
-The optimisers that we have tested are the Adam optimiser and the Stochastic Gradient Descent (SGD) optimiser. Initially, we were expecting the Adam optimiser to outperform SGD in our tests. However, SGD suprisingly had better convergence than Adam. As a result, we chose to continue testing SGD. During our tests with SGD, we began experimenting with the use of *Nesterov momentum*.
+The optimisers that we have tested are the Adam optimiser and the Stochastic Gradient Descent (SGD) optimiser. Initially, we were expecting the Adam optimiser to outperform SGD in our tests. However, SGD surprisingly  had better convergence than Adam. As a result, we chose to continue testing SGD. During our tests with SGD, we began experimenting with the use of *Nesterov momentum*.
 
 Nesterov Momentum is a variant of SGD that speeds up training and improves convergence. It basically calculates the gradient term from an intermediate point rather than the current position. This allows for corrections to be made if the momentum overshoots the next point or is pointing in the incorrect direction. See more [here](https://dominikschmidt.xyz/nesterov-momentum/).
 
@@ -136,32 +136,30 @@ In terms of epoch testing, we have trained our models for varying numbers of epo
 We also found that the use of PyTorch's *ReduceLROnPlateau* learning rate scheduler was useful when our model validation accuracy does not increase for 15 epochs. The reduction in learning rate helps our model finely tune its parameters.
 
 ## Extra features
-In addition to our EfficientNet model, we decided to create a bounding box algorithm to daw boxes around any guns that we detect. This algorithm works alongside our model, but is not actually part of the model itself. Our bounding box algorithm works by way of taking sections from an image contianing a detected gun and using a 'sliding window' to check for where in that section a gun may be.
+In addition to our EfficientNet model, we decided to create a bounding box algorithm to daw boxes around any guns that we detect. This algorithm works alongside our model but is not actually part of the model itself. Our bounding box algorithm works by way of taking sections from an image containing a detected gun and using a 'sliding window' to check for where in that section a gun may be.
 
 The positions of our sliding window in each input image are as shown below:
 ![](graphics/BBox.png)
 
-(Note: blue is the area of the sliding window, green is the image. Inititally, the program checks the entire image to ensure there is a gun in the input)
+(Note: blue is the area of the sliding window, green is the image. Initially, the program checks the entire image to ensure there is a gun in the input)
 
 After one round of the above sequence, the algorithm checks if the probabilities for guns in any of the boxes are greater than the threshold probability (which is updated to the highest probability found at the end of each sequence). If there is a higher probability, then the section of the image covered by the sliding window for the highest probability will become the input to the algorithm and so on. Eventually, the coordinates of the sliding window with the highest probability will become the coordinates of the bounding box.
 
-Although our bounding box is not as accurate as dedicated single shot detectors like yolo, or sliding window approaches which use many sliding windows, our method only requires less computation per image- as our goal is real time output, fast inference time is essential.
-In our testing speed is quite slow, but is likely due to model/image loading pipline contraints, as our model only takes 20-30ms to inference one image, so most of the delay is likely pytorch loading the model and image. 
-An example of the bounding box algorithm's result can be seen below:
+Although our bounding box is not as accurate as dedicated single-shot detectors like YOLO or sliding-window approaches which use many sliding windows, our method requires less computation per image – as our goal is real time output, fast inference time is essential. In our testing speed is quite slow but is likely due to model/image loading pipeline constraints, as our model only takes 20-30ms to inference one image, so most of the delay is likely PyTorch loading the model and image. An example of the bounding box algorithm's result can be seen below:
 
 ![](graphics/bound2.PNG)
 
 # Database
 
-Our dataset is a custom dataset containing images from Google Images, Gun Wiki, Sai Sasank's dataset, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal amount of images, with the total number of images being *12,250*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images (including images from Atulya Kumar and Prasun Roy's datasets) that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
+Our dataset is a custom dataset containing images from Google Images, Gun Wiki, Sai Sasank's dataset, a Synthetic Gun Dataset, COCO and CIFAR10. We have two classes in our dataset, namely *gun* and *not gun*. The *gun* class will contain a combination of gun images from Google, Gun Wiki and the Synthetic Gun Dataset. The *not gun* class will contain a combination of random images from COCO and/or CIFAR10. Each class will have an equal number of images, with the total number of images being *12,250*. This dataset will be further split into training and validation sets. For testing, we have a created a separate set of images (including images from Atulya Kumar and Prasun Roy's datasets) that were not used in our training or testing data. However, our main plan of action is to do real-time testing through a webcam using printouts of gun images.
 
 The reason behind having two classes rather than just a gun class is that we do not want our model to learn that it can get the correct answer by always predicting there is a gun. This would defeat the purpose of the project because the model would predict a large number of *false positives*.
 
-However, we believe that we need an equal amount of images in each class (i.e. *balanced* dataset) is to mitigate the chance of our model being biased to either class. This is because, while we do not want our model to guess gun every time, we also do not want it to be biased to the *not gun* class either.
+However, we believe that we need an equal number of images in each class (i.e. *balanced* dataset) is to mitigate the chance of our model being biased to either class. This is because, while we do not want our model to guess gun every time, we also do not want it to be biased to the *not gun* class either.
 
 Links to databases used (does not include Gu wiki or Google images):
 * [Sai Sasank's dataset](https://www.kaggle.com/issaisasank/guns-object-detection)
-* [Synethetic dataset](https://docs.google.com/forms/d/e/1FAIpQLSffVbLwfuhgSvwxrU66NDTZLfz0RrqcQ-KXJxEN9HIZiqxBeg/viewform?vc=0&c=0&w=1)
+* [Synthetic dataset](https://docs.google.com/forms/d/e/1FAIpQLSffVbLwfuhgSvwxrU66NDTZLfz0RrqcQ-KXJxEN9HIZiqxBeg/viewform?vc=0&c=0&w=1)
 * [Atulya Kumar's dataset](https://www.kaggle.com/atulyakumar98/gundetection)
 * [Prasun Roy's dataset](https://www.kaggle.com/prasunroy/natural-images)
 * [COCO](http://cocodataset.org/#download)
@@ -186,25 +184,25 @@ The results and evaluation for each model are outlined below:
 ![](graphics/B0_Global/testClassifB0.png) 
 ![](graphics/B0_Global/testConfB0.png)
 
-From the precision results for the B0 with Global Pooling model, we can see that we have a weighted average precision of 0.64. While this is not an inherently bad result, it is unsatisfactory for the purpose of our solution as it means that 0.36 of our positive predictions (for both classes) were false positives. The recall results, similar to the precision results, are good, but not good enough for our purposes. This is because having a weighted average recall of 0.64 means that 0.36 of labelled positives (for both classes) were predicted as false negatives. The F1-score is 0.64 which is lower than what we would like to have for our solution. It is also relevant to note that testing resulted in an overall accuracy of 82.38% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
+From the precision results for the B0 with Global Pooling model, we can see that we have a weighted average precision of 0.64. While this is not an inherently bad result, it is unsatisfactory for the purpose of our solution as it means that 0.36 of our positive predictions (for both classes) were false positives. The recall results, similar to the precision results, are good, but not good enough for our purposes. This is because having a weighted average recall of 0.64 means that 0.36 of labelled positives (for both classes) were predicted as false negatives. The F1-score is 0.64 which is lower than what we would like to have for our solution. It is also relevant to note that testing resulted in an overall accuracy of 82.38% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to gauge accuracy.
 ### B0 with Global Pooling and Adversarial training
 
 ![](graphics/B0_Global_Adv/testClassifB0.png) 
 ![](graphics/B0_Global_Adv/testConfB0.png)
 
-From the precision results above we can see a good improvement with the weighted average precision value of 0.76. This means that only an weighted average of 0.24 of positive predictions (for both classes) were false positives. The recall values also seem to be generally better than the previous model, with the weighted average value of 0.74. This means that 0.26 of labelled positives (for both classes) were predicted as false negatives. The F1-score has also improved to 0.74. It is also relevant to note that testing resulted in an overall accuracy of 89.76% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
+From the precision results above we can see a good improvement with the weighted average precision value of 0.76. This means that only a weighted average of 0.24 of positive predictions (for both classes) were false positives. The recall values also seem to be generally better than the previous model, with the weighted average value of 0.74. This means that 0.26 of labelled positives (for both classes) were predicted as false negatives. The F1-score has also improved to 0.74. It is also relevant to note that testing resulted in an overall accuracy of 89.76% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to gauge accuracy.
 ### B0 with AveragePool (9x9 kernel)
 
 ![](graphics/B0_KERNEL9/testClassif_B0.png) 
 ![](graphics/B0_KERNEL9/testConf_B0.png)
 
-From the above precision metrics, we can see that this model managed a weighted average precision of 0.82 which is the best precision result out of the four models. This means that only 0.18 of the predicted positives (for both classes) were false positives. The recall metric is also better than the other models with a weighted average recall of 0.79. This means that 0.21 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the highest at 0.79. It is also relevant to note that testing resulted in an overall accuracy of 84.05% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy.
+From the above precision metrics, we can see that this model managed a weighted average precision of 0.82 which is the best precision result out of the four models. This means that only 0.18 of the predicted positives (for both classes) were false positives. The recall metric is also better than the other models with a weighted average recall of 0.79. This means that 0.21 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the highest at 0.79. It is also relevant to note that testing resulted in an overall accuracy of 84.05% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to gauge accuracy.
 ### B1 without DropOut
 
 ![](graphics/B1_noDrop/testClassifB1.png)
 ![](graphics/B1_noDrop/testConfB1.png)
 
-From the above precision metrics, we can see that this model has a weighted average precision of 0.62 which is the worst precision result out of the four models. This model has a very unsatisfactory precision, as this means that 0.38 of the predicted positives (for both classes) were false positives. The recall metric is also worse than the other models with a weighted average recall of 0.61. This means that 0.39 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the lowest at 0.61. It is also relevant to note that testing resulted in an overall accuracy of 67.62% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to guage accuracy. The somewhat poor performance of this model was expected as we removed the Dropout layer to see the effect that would have on model performance.
+From the above precision metrics, we can see that this model has a weighted average precision of 0.62 which is the worst precision result out of the four models. This model has a very unsatisfactory precision, as this means that 0.38 of the predicted positives (for both classes) were false positives. The recall metric is also worse than the other models with a weighted average recall of 0.61. This means that 0.39 of labelled positives (for both classes) were predicted as false negatives. The F1-score accuracy is also the lowest at 0.61. It is also relevant to note that testing resulted in an overall accuracy of 67.62% from 412 images with this network. However, considering that our test set is not balanced, F1-score may be a better metric to gauge accuracy. The somewhat poor performance of this model was expected as we removed the Dropout layer to see the effect that would have on model performance.
 
 # Conclusion & Future Work
 From working on this project, we have learnt/reinforced many concepts and theories, as well as developed a feel for fine-tuning and tweaking features of a model to improve its convergence and overall performance. We have also developed our use and understanding of evaluation tools such as TensorBoard, Confusion Matrices, Precision, Recall, and F1 metrics. All these skills have allowed us to create an EfficientNet model that can accurately detect guns in images/video frames. However, though we have completed this project for the purposes of COMPSYS302, we believe that there is more we can do to improve our model.
