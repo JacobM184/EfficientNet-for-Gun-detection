@@ -293,5 +293,5 @@ if (__name__ == '__main__'):
         'optimizer': optimizer.state_dict()
         }
 
-
+        print("saving checkpoint")
         torch.save(checkpoint, 'B0_global.pt')
