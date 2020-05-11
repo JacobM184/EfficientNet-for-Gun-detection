@@ -27,6 +27,7 @@ if (__name__ == '__main__'):
   print(device)
 
   test_loader = torch.utils.data.DataLoader(
+    #datatransforms
     datasets.ImageFolder('data/guntest', transform=transforms.Compose([
 
 
@@ -197,7 +198,7 @@ if (__name__ == '__main__'):
           return out
 
   #change model name inside quotation marks to test another model
-  model = torch.load('B0_global.pt').to(device)
+  model = torch.load('b0_global.pt').to(device)
   model = nn.Sequential(
       model,
       nn.Softmax(1)
@@ -206,6 +207,7 @@ if (__name__ == '__main__'):
   test_acc = 0.0
   count=0
   timestamp1 = time.time()
+  #run test batch
   for samples, labels in test_loader:
     with torch.no_grad():
         count+=1
