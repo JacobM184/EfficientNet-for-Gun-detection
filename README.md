@@ -60,6 +60,10 @@ Below is a representation of our basal model (EfficientNet B0) without any scali
 
 ![](graphics/EfficientNetArch.png)
 
+And here is a graphical representation of our model:
+
+![](graphics/EfficientNet_illustration.png)
+
 ## Key features
 When developing our model, we had to implement the following key features
 * Data transforms
