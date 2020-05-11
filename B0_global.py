@@ -241,7 +241,7 @@ if (__name__ == '__main__'):
       print("restarting!")
       print(epoch)
 
-  torch.save(model,'final-b0-synth-final')
+ 
   total_step = len(train_loader)
   while epoch <num_epochs:
       correct = 0
