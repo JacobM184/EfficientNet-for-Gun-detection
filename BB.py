@@ -196,7 +196,7 @@ class ConvNet(nn.Module):
 
 
 # Classify
-model = torch.load('B0_global.pt').to(device)
+model = torch.load('b0_global.pt').to(device)
 model = nn.Sequential(
     model,
     nn.Softmax(1)
