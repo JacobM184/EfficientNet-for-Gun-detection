@@ -141,6 +141,7 @@ In terms of epoch testing, we have trained our models for varying numbers of epo
 We also found that the use of PyTorch's *ReduceLROnPlateau* learning rate scheduler was useful when our model validation accuracy does not increase for 15 epochs. The reduction in learning rate helps our model finely tune its parameters.
 
 ## Extra features
+NOTE: Does not work consistently. Requires input image to be roughly squre.
 In addition to our EfficientNet model, we decided to create a bounding box algorithm to daw boxes around any guns that we detect. This algorithm works alongside our model but is not actually part of the model itself. Our bounding box algorithm works by way of taking sections from an image containing a detected gun and using a 'sliding window' to check for where in that section a gun may be.
 
 The positions of our sliding window in each input image are as shown below:
