@@ -156,8 +156,7 @@ if (__name__ == '__main__'):
           self.mbconv7= MBConv(192, 320, 3, 1, 6,SE, 0)
           #stride=1, output res=7x7
           self.conv1x1 = conv1x1(320,1280)
-          #stride=1, output res=7x7
-          #self.pool=  nn.AvgPool2d(kernel_size=5, stride=1, padding=2)
+          # output res=1
           self.pool=  nn.AdaptiveAvgPool2d(1)
           self.fc = nn.Linear(7*7*1280, num_classes)
 
