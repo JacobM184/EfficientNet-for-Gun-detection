@@ -16,7 +16,8 @@ INF.py = no bounding box, only prediction %
 
 1. Download project file(s)
     * BB.py
-    * INF.py
+    * Test.py
+    * B0_global.pt
 2. Download dataset
     * our dataset can be downloaded from the following link: [dataset]()
 3. Put project files and dataset folder in the same directory
@@ -25,8 +26,10 @@ INF.py = no bounding box, only prediction %
     * [drive letter]:  
     * cd [directory]
 5. Enter into console:
-    * python INF.py  
-    
+    * python Test.py  for infernce
+    * python BB.py for bounding box detection
+    * python B0_global.pt for training   [requires cuda enabled GPU with vram of at least 4GB- tested on machine with 8GB vram]
+     
     
 To add your own test gun images, place them into [directory/ad/gunval/gun]
 
