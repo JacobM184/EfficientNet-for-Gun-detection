@@ -21,7 +21,7 @@ Below are the steps for inferencing our model:
     * Test.py
     * B0_global.pt
 2. Download dataset
-    * our dataset can be downloaded from the following link: [https://drive.google.com/open?id=1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN]()
+    * our dataset can be downloaded from the following link: [data](https://drive.google.com/open?id=1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN)
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
 4. Navigate to install directory in console:
