@@ -25,23 +25,28 @@ Below are the steps for inferencing our model:
     * our dataset can be downloaded from the following link: [data](https://drive.google.com/drive/folders/1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN?usp=sharing)
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
-4. Navigate to install directory in console:
-    * [drive letter]:  
-    * cd [directory]
-5. Enter into console:
-    * python Test.py  for infernce
-    * python BB.py for bounding box detection
-    * python B0_global.pt for training   [requires cuda enabled GPU with vram of at least 4GB- tested on machine with 8GB vram]
+4. Navigate to project's directory in console:
+    * directory should include: project scripts, 'data' folder, and any .pt files you may choose to download
+5. Enter the italicised commands into the console:
+    * *python Test.py*  (for testing inference)
+    * *python BB.py* (for testing bounding box detection)
+    * *python B0_global.pt* (for training **requires CUDA enabled GPU with VRAM of at least 4GB - tested on machine with 8GB VRAM**)
      
     
-To add your own test gun images, place them into [directory/ad/gunval/gun]
+To add your own test gun images, place them into *data/guntest/guntrain* or *data/guntest/gunval*, as required
 
 
 Please find the links to our training scripts below:
-* [B0 with AveragePool5]()
-* [B0 with Globalpool]()
+* [B0 with AveragePool5](/b0_avgpool_5.py)
+* [B0 with Globalpool](/B0_global.py)
 * [B0 with AveragePool9](/B0_AvgPool9.py)
 * [B1 without DropOut](/B1_without_DropOut.py)
+
+Please find links to testing scripts below:
+* [Test Script 1](/BB.py) - tests  bounding box + prediction % (1 image)
+* [B0 with Globalpool](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
+
+Please find the link to the checkpoint file:
    
 
 # Gun detection system
