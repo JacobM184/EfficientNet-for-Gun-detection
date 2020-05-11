@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 import itertools
 import numpy as np
-from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, models, transforms
 
 if (__name__ == '__main__'):
@@ -17,11 +16,6 @@ if (__name__ == '__main__'):
     # Device configuration
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(device)
-
-    # TensorBoard code
-    %load_ext tensorboard
-    logs_base_dir = "runs"
-    os.makedirs(logs_base_dir, exist_ok=True)
 
     # Hyper parameters
     num_epochs = 100
@@ -48,7 +42,7 @@ if (__name__ == '__main__'):
     ################################################### Dataset loading #########################################################
 
     # set directory for data
-    data = "/data"
+    data = "data"
 
     # get training data from the 'train' sub-directory and load the data
     train_set = datasets.ImageFolder(data + "/guntrain", transform = trainingTransforms)
@@ -252,18 +246,6 @@ if (__name__ == '__main__'):
           out = self.fc(out)
           return out
 
-    ################################################ Tensorboard ########################################################################
-    tb = SummaryWriter()
-    inputs, labels = next(iter(train_loader))
-    network = ConvNet()
-    grid = torchvision.utils.make_grid(inputs)
-    
-    # adds images from dataset into TensorBoard
-    tb.add_image('images', grid, 0)
-    
-    # adds graph of model to TensorBoard
-    tb.add_graph(network, inputs)
-    tb.close()
     ################################################## Training/Eval Code ###############################################################
 
     # Define model
@@ -283,7 +265,7 @@ if (__name__ == '__main__'):
     # restart must be set to 1 when required
     restart=0
     if(restart):
-          checkpoint = torch.load('/content/drive/My Drive/b1_nodrop.pt')
+          checkpoint = torch.load('b1_nodrop.pt')
           model.load_state_dict(checkpoint['state_dict'])
           optimizer.load_state_dict(checkpoint['optimizer'])
           epoch = checkpoint['epoch']
@@ -342,13 +324,8 @@ if (__name__ == '__main__'):
         'optimizer': optimizer.state_dict()
         }
 
-        # TensorBoard code to add line graphs for loss, correct guesses, and training accuracy
-        tb.add_scalar('Training Loss', loss.item(), epoch)
-        tb.add_scalar('Number Correct', correct, epoch)
-        tb.add_scalar('Training Accuracy', (100 * correct / total), epoch)
-
         # save model checkpoint
-        path = "/content/drive/My Drive/b1_nodrop.pt" 
+        path = "b1_nodrop.pt" 
         torch.save(checkpoint, path)
 
         # testing loop
@@ -382,15 +359,11 @@ if (__name__ == '__main__'):
             # append validation accuracy
             tst_acc.append((100 * correct / total))
 
-            # adding testing accuracy to TensorBoard
-            tb.add_scalar('Testing Accuracy', (100 * correct / total), epoch)
-            tb.add_scalar('Testing Loss', loss.item(), epoch)
             scheduler.step(correct / total)
 
-   # Evaluate the model
+    ############################################### Evaluate the model ##################################################################
 
     # Confusion matrix code
-
     # function to plot confusion matrix from deeplizard.com
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
         if normalize:
@@ -408,7 +381,7 @@ if (__name__ == '__main__'):
         plt.yticks(tick_marks, classes)
 
         fmt = '.2f' if normalize else 'd'
-        thresh = cm.max() / 2.
+        thresh = cm.max() / 1.2
         for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
             plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
 
@@ -479,4 +452,4 @@ if (__name__ == '__main__'):
     plt.plot(tst_acc)
 
     # Save the final model checkpoint 
-    torch.save(model.state_dict(), 'model_B1NoDrop.ckpt')
+    torch.save(model, 'model_B1NoDrop.pt')
