@@ -196,7 +196,7 @@ if (__name__ == '__main__'):
           out = self.fc(out)
           return out
 
-  #model = torch.load('final-b0-synth-noadd.pt').to(device)
+  #change model name inside quotation marks to test another model
   model = torch.load('B0_global.pt').to(device)
   model = nn.Sequential(
       model,
