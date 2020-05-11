@@ -183,14 +183,14 @@ The results and evaluation for each model are outlined below:
 *Note: Concerning the confusion matrix - we only have 99 gun images in the validation set*
 ### B0 with Global Pooling
 
-![](graphics/B0_Global/testClassif_B0.png) 
-![](graphics/B0_Global/testConf_B0.png)
+![](graphics/B0_Global/testClassifB0.png) 
+![](graphics/B0_Global/testConfB0.png)
 
 
 ### B0 with Global Pooling and Adversarial training
 
-![](graphics/B0_Global_Adv/testClassif_B0.png) 
-![](graphics/B0_Global_Adv/testConf_B0.png)
+![](graphics/B0_Global_Adv/testClassifB0.png) 
+![](graphics/B0_Global_Adv/testConfB0.png)
 
 
 ### B0 with AveragePool (9x9 kernel)
