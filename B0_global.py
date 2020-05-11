@@ -39,7 +39,7 @@ if (__name__ == '__main__'):
 
 
   train_loader = torch.utils.data.DataLoader(
-      datasets.ImageFolder('data/guntrain',
+      datasets.ImageFolder('data/guntrain_ad',
                       transform=transforms.Compose([
           transforms.Resize((224,224), interpolation=2),
           transforms.RandomResizedCrop(size=224, scale=(0.75, 1.0)),
