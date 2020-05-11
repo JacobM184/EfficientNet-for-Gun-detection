@@ -20,7 +20,7 @@ if (__name__ == '__main__'):
   # Device configuration
   device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
   print(device)
-  #device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 
   # Hyper parameters
   num_epochs =1000
@@ -63,12 +63,7 @@ if (__name__ == '__main__'):
 
                       ])),
       batch_size=batch, shuffle=True,  num_workers=4)
-  #data_dir = 'data/'
-  #image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-  #                                      data_transforms[x])
-    #                for x in ['train', 'val']}
- # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
-  #class_names = image_datasets['train'].classes
+ 
 
   class Swish(nn.Module):
       def __init__(self):
@@ -294,4 +289,4 @@ if (__name__ == '__main__'):
         }
 
         print("saving checkpoint")
-        torch.save(checkpoint, 'B0_global.pt')
+        torch.save(checkpoint, 'b0_global.pt')
