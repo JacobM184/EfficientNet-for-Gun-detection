@@ -25,7 +25,7 @@ Below are the steps for inferencing our model:
     * our dataset can be downloaded from the following link: [data](https://drive.google.com/open?id=1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN)
 3. Put project files and dataset folder in the same directory
     * please ensure you extract all .zip files
-    * ensure folder 'data' and BB.py, Test.py and B0_global.pt are in the same directory/folder
+    * ensure folder 'data' and BB.py, Test.py and b0_global.pt are in the same directory/folder
 4. Navigate to install directory in console:
     * [drive letter]:  
     * cd [directory]
