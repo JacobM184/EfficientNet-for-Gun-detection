@@ -234,7 +234,7 @@ if (__name__ == '__main__'):
 #restart training from checkpoint
   if(restart):
       #diretory of saved model dict
-      checkpoint = torch.load('b0-gun-full-avg-5full')
+      checkpoint = torch.load('b0_global.pt')
       model.load_state_dict(checkpoint['state_dict'])
       optimizer.load_state_dict(checkpoint['optimizer'])
       epoch = checkpoint['epoch']
