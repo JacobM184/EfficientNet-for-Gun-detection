@@ -34,9 +34,7 @@ tfms = transforms.Compose([transforms.Resize((224,224)), transforms.ToTensor()
 
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-# Load ImageNet class names
-labels_map = json.load(open('labels_map.txt'))
-labels_map = [labels_map[str(i)] for i in range(1000)]
+
 class Swish(nn.Module):
  def __init__(self):
      super(Swish, self).__init__()
