@@ -41,7 +41,7 @@ Training only notes:
 * To restart training, edit b0_global.py(line 231): 'restart=0' -> 'restart=1'
 * By default, newly trained models will replace pretrained model file b0_global.pt 
 * Modify torch.save(checkpoint, 'b0_global.pt') to save to a different file name.
-If you do, you will have to modify Test.py line 200  model = torch.load('b0_global.pt').to(device) to your model name
+If you do, you will have to modify Test.py (line 200): model = torch.load('b0_global.pt').to(device)    - replace b0_global.pt with your own model name
     
     
 To add your own test gun images, place them into *data/guntest/guntrain* or *data/guntest/gunval*, as required
