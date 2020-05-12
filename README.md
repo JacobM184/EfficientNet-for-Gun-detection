@@ -50,8 +50,22 @@ Please find links to testing scripts below:
 * [Test Script 1](/BB.py) - tests  bounding box + prediction % (1 image)
 * [Test Script 2](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
 
-Please find the link to the checkpoint file:
-   
+Instructions for training our model:
+1. Download training script b0_global.py
+2. Download our dataset from the following link: [data](https://drive.google.com/drive/folders/1GlK7o_nciEY4J3VlHqWvAdK28HBHrDdN?usp=sharing)
+3. Put project files and dataset folder in the same directory
+    * please ensure you extract all .zip files
+4. Navigate to project's directory in console:
+   * type python B0_global.py in command prompt
+   * press ctr+c on command prompt to stop training
+   * to restart training, edit b0_global.py(line 231): 'restart=0'-> 'restart=1'
+
+
+NOTE: by default, newly trained models will replace pretrained model file b0_global.pt
+modify torch.save(checkpoint, 'b0_global.pt') to save to a diffrent file name.
+If you do, you will have to modify Test.py line 200  model = torch.load('b0_global.pt').to(device) to your model name
+
+
 
 # Gun detection system
 
