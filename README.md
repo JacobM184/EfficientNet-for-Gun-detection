@@ -36,8 +36,10 @@ Below are the steps for inferencing our model:
     * *python BB.py* (for testing bounding box detection)
     * *python B0_global.pt* (for training **requires CUDA enabled GPU with VRAM of at least 4GB - tested on machine with 8GB VRAM**)
     
-Training only notes: * to restart training, edit b0_global.py(line 231): 'restart=0'-> 'restart=1'
-* by default, newly trained models will replace pretrained model file b0_global.pt
+Training only notes: 
+* To end training early, repeatedly press *ctrl+c* in console
+* To restart training, edit b0_global.py(line 231): 'restart=0' -> 'restart=1'
+* By default, newly trained models will replace pretrained model file b0_global.pt
 modify torch.save(checkpoint, 'b0_global.pt') to save to a diffrent file name.
 If you do, you will have to modify Test.py line 200  model = torch.load('b0_global.pt').to(device) to your model name
     
