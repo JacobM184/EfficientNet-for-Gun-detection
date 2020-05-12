@@ -133,7 +133,7 @@ if (__name__ == '__main__'):
             # calculate channels after expansion
             expandedCh = inputCh * expandRatio
 
-            self.DropRate = DropPRate
+            self.DropPRate = DropPRate
             # array to hold 'sub layers' of MBConv layer
             MBconv = []
 
@@ -185,7 +185,7 @@ if (__name__ == '__main__'):
             # logic to check if we need to use a dropout layer
             if self.use_res:
                 # see dropout layer class for implementation
-                return (x + DropOutLayer(self.MBConvLayers(x), self.DropRate, self.training))
+                return (x + DropOutLayer(self.MBConvLayers(x), self.DropPRate, self.training))
             else:
                 return self.MBConvLayers(x)
 
