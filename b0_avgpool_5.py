@@ -279,7 +279,7 @@ if (__name__ == '__main__'):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-        print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+        print('Test Accuracy of the model on test images: {} %'.format(100 * correct / total))
         scheduler.step(correct / total)
         checkpoint = {
         'epoch': epoch + 1,
