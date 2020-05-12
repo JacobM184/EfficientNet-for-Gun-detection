@@ -47,15 +47,6 @@ If you do, you will have to modify Test.py (line 200): model = torch.load('b0_gl
 To add your own test gun images, place them into *data/guntest/guntrain* or *data/guntest/gunval*, as required
 
 
-Please find the links to our training scripts below:
-* [B0 with AveragePool5](/b0_avgpool_5.py)
-* [B0 with Globalpool](/B0_global.py)
-* [B0 with AveragePool9](/B0_AvgPool9.py)
-* [B1 without DropOut](/B1_without_DropOut.py)
-
-Please find links to testing scripts below:
-* [Test Script 1](/BB.py) - tests  bounding box + prediction % (1 image)
-* [Test Script 2](/Test.py) - tests only prediction % (of all images in 'data/guntest' folder)
 
 
    
