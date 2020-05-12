@@ -8,7 +8,7 @@
 - [Evaluation](#evaluation)
 - [Conclusion & Future Work](#conclusion--future-work)
 
-# Instructions
+# Instructions (windows)
 BB.py = bounding box + prediction % [1 image]
 
 Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
