@@ -15,7 +15,6 @@ Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder
 
 B0_global.pt = [BEST] Pretrained global pooling model
 
-Below are the steps for inferencing our model:
 
 1. Download project file(s)
     * [B0 with AveragePool5](/b0_avgpool_5.py) - training script
