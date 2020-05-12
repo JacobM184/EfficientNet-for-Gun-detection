@@ -9,11 +9,9 @@
 - [Conclusion & Future Work](#conclusion--future-work)
 
 # Instructions (windows)
-BB.py = bounding box + prediction % [1 image]
-
-Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
-
-B0_global.pt = [BEST] Pretrained global pooling model
+- BB.py = bounding box + prediction % [1 image]
+- Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
+- B0_global.pt = [BEST] Pretrained global pooling model
 
 
 1. Download project file(s)
