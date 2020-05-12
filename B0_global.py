@@ -33,11 +33,9 @@ if (__name__ == '__main__'):
 
 
 
-  def save_ckp(state):
-    f_path = 'checkpoint.pt'
-    torch.save(state, f_path)
 
 
+################################################### Data loading and transformations #########################################################
   train_loader = torch.utils.data.DataLoader(
       datasets.ImageFolder('data/guntrain_ad',
                       transform=transforms.Compose([
@@ -64,7 +62,7 @@ if (__name__ == '__main__'):
                       ])),
       batch_size=batch, shuffle=True,  num_workers=4)
  
-
+################################################### Swish activation #########################################################
   class Swish(nn.Module):
       def __init__(self):
           super(Swish, self).__init__()
@@ -72,13 +70,14 @@ if (__name__ == '__main__'):
 
       def forward(self, y):
           return y * self.sigmoid(y)
-
+  #################################################### 1x1 Conv layer ###########################################################
   def conv1x1(inputCh, outputCh):
     return nn.Sequential(
       nn.Conv2d(inputCh, outputCh, 1,1,0, bias=False),
       nn.BatchNorm2d(outputCh),
       Swish()
       )
+  ##################################################### Dropout layer ###########################################################
   def DropOutLayer(x,DropPRate, training):
       if DropPRate> 0 and training:
           keep_prob = 1 - DropPRate
@@ -90,14 +89,17 @@ if (__name__ == '__main__'):
 
       return x
 
-
+###################################################### MBConv block ###########################################################
   class MBConv(nn.Module):
       def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
           super(MBConv, self).__init__()
           self.DropPRate=DropPRate
           self.plc = ((stride == 1) and (inputCh == outputCh))
+                 # calculate channels after expansion
           expandedCh = inputCh * expandRatio
+           # array to hold 'sub layers' of MBConv layer
           MBconv = []
+          # placeholder to check if dropout layers should be used
           self.use_res = (stride == 1 and (inputCh == outputCh))
           if (expandRatio != 1):
               expansionPhase = nn.Sequential(
@@ -105,24 +107,26 @@ if (__name__ == '__main__'):
                   Swish()
               )
               MBconv.append(expansionPhase)
-
+           # depthwise convolution sequential block
           DepthwisePhase = nn.Sequential(
               nn.Conv2d(expandedCh, expandedCh, filterSize, stride, filterSize // 2, groups=expandedCh, bias=False),
               nn.BatchNorm2d(expandedCh), Swish()
           )
           MBconv.append(DepthwisePhase)
 
-          # insert SqueezeAndExcite here later
+         # Squeeze and excitation sequential block of MBConv
           if (SERatio != 0.0):
               SqAndEx = SqueezeAndExcitation(    expandedCh, inputCh, SERatio)
+              # appending Squeeze and excitation sequential block to the MBConv array
               MBconv.append(SqAndEx)
 
-
+           # projection sequential block of MBConv
+           # returns channel number from the expanded channels to the intended output channels
           projectionPhase = nn.Sequential(
               nn.Conv2d(expandedCh, outputCh, kernel_size=1, bias=False), nn.BatchNorm2d(outputCh)
           )
           MBconv.append(projectionPhase)
-
+          # combining all sequential blocks under one 'master' sequential block
           self.MBConvLayers = nn.Sequential(*MBconv)
 
 
@@ -133,7 +137,7 @@ if (__name__ == '__main__'):
           else:
               return self.MBConvLayers(x)
   ################################# Squeeze and Excite ##################################################################
-  ########### Squeeze and Excitation block ###################
+
 
   class SqueezeAndExcitation(nn.Module):
       def __init__(self, inputCh, squeezeCh, SERatio):
@@ -221,6 +225,7 @@ if (__name__ == '__main__'):
           out = out.reshape(out.size(0), -1)
           out = self.fc(out)
           return out
+   #load model into GPU/CPU
   model = ConvNet(num_classes).to(device)
 
   # Loss and optimizer
@@ -272,6 +277,7 @@ if (__name__ == '__main__'):
       with torch.no_grad():
         correct = 0
         total = 0
+        #cycle through test images
         for images, labels in test_loader:
             images = images.to(device)
             labels = labels.to(device)
