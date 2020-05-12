@@ -39,8 +39,8 @@ Below are the steps for inferencing our model:
 Training only notes: 
 * To end training early, repeatedly press *ctrl+c* in console
 * To restart training, edit b0_global.py(line 231): 'restart=0' -> 'restart=1'
-* By default, newly trained models will replace pretrained model file b0_global.pt
-modify torch.save(checkpoint, 'b0_global.pt') to save to a diffrent file name.
+* By default, newly trained models will replace pretrained model file b0_global.pt 
+* Modify torch.save(checkpoint, 'b0_global.pt') to save to a different file name.
 If you do, you will have to modify Test.py line 200  model = torch.load('b0_global.pt').to(device) to your model name
     
     
