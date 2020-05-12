@@ -8,11 +8,7 @@
 - [Evaluation](#evaluation)
 - [Conclusion & Future Work](#conclusion--future-work)
 
-# Instructions (windows)
-- BB.py = bounding box + prediction % [1 image]
-- Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
-- B0_global.pt = [BEST] Pretrained global pooling model
-
+# Instructions
 
 1. Download project file(s)
     * [B0 with AveragePool5](/b0_avgpool_5.py) - training script
@@ -33,20 +29,17 @@
     * *python BB.py* (for testing bounding box detection)
     * *python B0_global.pt* (for training **requires CUDA enabled GPU with VRAM of at least 4GB - tested on machine with 8GB VRAM**)
     
-Training only notes: 
+Notes for training: 
 * To end training early, repeatedly press *ctrl+c* in console
-* To restart training, edit b0_global.py(line 231): 'restart=0' -> 'restart=1'
+* To restart training from presaved checkpoint, edit b0_global.py(line 231): 'restart=0' -> 'restart=1'
 * By default, newly trained models will replace pretrained model file b0_global.pt 
 * Modify torch.save(checkpoint, 'b0_global.pt') to save to a different file name.
-If you do, you will have to modify Test.py (line 200): model = torch.load('b0_global.pt').to(device)    - replace b0_global.pt with your own model name
+If you do, you will have to modify Test.py (line 200): model = torch.load('b0_global.pt').to(device) - replace b0_global.pt with your own model name
     
     
 To add your own test gun images, place them into *data/guntest/guntrain* or *data/guntest/gunval*, as required
 
-
-
-
-   
+***NOTE:* These instructions are for use on a Windows machine. These may not work for Linux, MacOS, or other Operating Systems**
 
 
 # Gun detection system
