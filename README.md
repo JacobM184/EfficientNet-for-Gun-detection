@@ -13,7 +13,7 @@ BB.py = bounding box + prediction % [1 image]
 
 Test.py = no bounding box, only prediction % [all images in 'data/gunval' folder]
 
-B0_global.pt = Pretrained global pooling model
+B0_global.pt = [BEST] Pretrained global pooling model
 
 Below are the steps for inferencing our model:
 
