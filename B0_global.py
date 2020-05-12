@@ -277,7 +277,8 @@ if (__name__ == '__main__'):
       with torch.no_grad():
         correct = 0
         total = 0
-        #cycle through test images
+        #cycle through validation images
+        #get validation accuracy
         for images, labels in test_loader:
             images = images.to(device)
             labels = labels.to(device)
