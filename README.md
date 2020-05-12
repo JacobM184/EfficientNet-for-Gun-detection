@@ -27,7 +27,7 @@
 5. Enter the italicised commands into the console:
     * *python Test.py*  (for testing inference)
     * *python BB.py* (for testing bounding box detection)
-    * *python B0_global.pt* (for training **requires CUDA enabled GPU with VRAM of at least 4GB - tested on machine with 8GB VRAM**)
+    * *python B0_global.py* (training requires CUDA enabled GPU with VRAM of at least 4GB - tested on machine with 8GB VRAM)
     
 Notes for training: 
 * To end training early, repeatedly press *ctrl+c* in console
