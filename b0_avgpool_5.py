@@ -33,11 +33,7 @@ if (__name__ == '__main__'):
 
 
 
-  def save_ckp(state):
-    f_path = 'checkpoint.pt'
-    torch.save(state, f_path)
-
-
+################################################### Data loading/transformations #########################################################
   train_loader = torch.utils.data.DataLoader(
       datasets.ImageFolder('data/guntrain',
                       transform=transforms.Compose([
@@ -63,13 +59,8 @@ if (__name__ == '__main__'):
 
                       ])),
       batch_size=batch, shuffle=True,  num_workers=4)
-  #data_dir = 'data/'
-  #image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-  #                                      data_transforms[x])
-    #                for x in ['train', 'val']}
- # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
-  #class_names = image_datasets['train'].classes
 
+################################################### Swish activation #########################################################
   class Swish(nn.Module):
       def __init__(self):
           super(Swish, self).__init__()
@@ -77,13 +68,14 @@ if (__name__ == '__main__'):
 
       def forward(self, y):
           return y * self.sigmoid(y)
-
+#################################################### 1x1 Conv layer ###########################################################
   def conv1x1(inputCh, outputCh):
     return nn.Sequential(
       nn.Conv2d(inputCh, outputCh, 1,1,0, bias=False),
       nn.BatchNorm2d(outputCh),
       Swish()
       )
+  ##################################################### Dropout layer ###########################################################
   def DropOutLayer(x,DropPRate, training):
       if DropPRate> 0 and training:
           keep_prob = 1 - DropPRate
@@ -95,7 +87,7 @@ if (__name__ == '__main__'):
 
       return x
 
-
+###################################################### MBConv block ###########################################################
   class MBConv(nn.Module):
       def __init__(self, inputCh, outputCh, filterSize, stride, expandRatio, SERatio, DropPRate):
           super(MBConv, self).__init__()
@@ -138,7 +130,7 @@ if (__name__ == '__main__'):
           else:
               return self.MBConvLayers(x)
   ################################# Squeeze and Excite ##################################################################
-  ########### Squeeze and Excitation block ###################
+
 
   class SqueezeAndExcitation(nn.Module):
       def __init__(self, inputCh, squeezeCh, SERatio):
@@ -157,7 +149,7 @@ if (__name__ == '__main__'):
           y = self.dense(y)
           return x * y
 
-
+# ConvNet class to hold all layers of the efficient net
   class ConvNet(nn.Module):
       def __init__(self, num_classes=2):
           super(ConvNet, self).__init__()
@@ -226,6 +218,7 @@ if (__name__ == '__main__'):
           out = out.reshape(out.size(0), -1)
           out = self.fc(out)
           return out
+     #send model to GPU/CPU
   model = ConvNet(num_classes).to(device)
 
   # Loss and optimizer
@@ -235,7 +228,7 @@ if (__name__ == '__main__'):
   epoch=0
   restart=1
   # Train the model
-
+  #restart training
   if(restart):
       checkpoint = torch.load('b0-gun-full-avg-5full')
       model.load_state_dict(checkpoint['state_dict'])
@@ -244,13 +237,15 @@ if (__name__ == '__main__'):
       print("restarting!")
       print(epoch)
 
-  torch.save(model,'final-b0-synth-final')
+  
   total_step = len(train_loader)
+  #train loop
   while epoch <num_epochs:
       correct = 0
       total = 0
       for i, (images, labels) in enumerate(train_loader):
           model.train()
+          #load images
           images = images.to(device)
           labels = labels.to(device)
 
@@ -262,8 +257,8 @@ if (__name__ == '__main__'):
           optimizer.zero_grad()
           loss.backward()
           optimizer.step()
-          #scheduler.step()
-
+          
+          #print train accuracy
           if (i) % 900== 0:
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -272,6 +267,7 @@ if (__name__ == '__main__'):
                         .format(epoch+1, num_epochs, i+1, total_step, loss.item(), (100 * correct / total)))
       epoch+=1
       model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
+      #get validation accuracy
       with torch.no_grad():
         correct = 0
         total = 0
