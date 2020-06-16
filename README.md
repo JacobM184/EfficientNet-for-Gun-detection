@@ -1,4 +1,4 @@
-# CS302-Python-2020-Group32
+# EfficientNet for Gun Detection
 # Table of contents
 - [Instructions](#instructions)
 - [Gun detection system](#gun-detection-system)
